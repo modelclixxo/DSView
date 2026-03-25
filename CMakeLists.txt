@@ -64,6 +64,7 @@ set(ENABLE_SIGNALS TRUE) #Build with UNIX signals
 set(ENABLE_COTIRE FALSE) #Enable cotire
 set(ENABLE_TESTS  FALSE) #Enable unit tests
 set(STATIC_PKGDEPS_LIBS FALSE) #Statically link to (pkg-config) libraries
+option(DSVIEW_PREFER_QT6 "Prefer Qt6 over Qt5 when both are available" TRUE)
 
 if(WIN32)
 	# On Windows/MinGW we need to statically link to libraries.
@@ -177,26 +178,23 @@ include_directories(${ZLIB_INCLUDE_DIRS})
 #= Qt5 or Qt6
 #-------------------------------------------------------------------------------
 
-find_package(Qt5Core QUIET)
+set(Qt5Core_FOUND FALSE)
+set(Qt6Core_FOUND FALSE)
 
-if(Qt5Core_FOUND)
-	message("----- Qt5:")
-	message(STATUS "	 includes:" ${Qt5Core_INCLUDE_DIRS})
-	#find_package(Qt5WinExtras REQUIRED)
-	find_package(Qt5Widgets REQUIRED)
-	find_package(Qt5Gui REQUIRED)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
-	#set(QT_INCLUDE_DIRS ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5WinExtras_INCLUDE_DIRS})
-	#set(QT_LIBRARIES Qt5::Gui Qt5::Widgets Qt5::WinExtras)
-	set(QT_INCLUDE_DIRS ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
-	set(QT_LIBRARIES Qt5::Gui Qt5::Widgets)
-	add_definitions(${Qt5Gui_DEFINITIONS} ${Qt5Widgets_DEFINITIONS})
-else()
+if(DSVIEW_PREFER_QT6)
 	find_package(Qt6Core QUIET)
+	if(NOT Qt6Core_FOUND)
+		find_package(Qt5Core QUIET)
+	endif()
+else()
+	find_package(Qt5Core QUIET)
+	if(NOT Qt5Core_FOUND)
+		find_package(Qt6Core QUIET)
+	endif()
 endif()
 
 if(Qt6Core_FOUND)
-    	message("----- Qt6:")
+	message("----- Qt6:")
 	message(STATUS "	 includes:" ${Qt6Core_INCLUDE_DIRS})
 	find_package(Qt6Widgets REQUIRED)
 	find_package(Qt6Gui REQUIRED)
@@ -204,9 +202,18 @@ if(Qt6Core_FOUND)
 	set(QT_INCLUDE_DIRS ${Qt6Gui_INCLUDE_DIRS} ${Qt6Widgets_INCLUDE_DIRS})
 	set(QT_LIBRARIES Qt6::Gui Qt6::Widgets)
 	add_definitions(${Qt6Gui_DEFINITIONS} ${Qt6Widgets_DEFINITIONS})
+elseif(Qt5Core_FOUND)
+	message("----- Qt5:")
+	message(STATUS "	 includes:" ${Qt5Core_INCLUDE_DIRS})
+	find_package(Qt5Widgets REQUIRED)
+	find_package(Qt5Gui REQUIRED)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+	set(QT_INCLUDE_DIRS ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS})
+	set(QT_LIBRARIES Qt5::Gui Qt5::Widgets)
+	add_definitions(${Qt5Gui_DEFINITIONS} ${Qt5Widgets_DEFINITIONS})
 endif()
 
-if(NOT Qt5Core_FOUND AND NOT Qt6Core_FOUND)
+if(NOT Qt6Core_FOUND AND NOT Qt5Core_FOUND)
 	message("Error!The qt5 or qt6 can't find, if them has been installed, please append the install path to CMAKE_PREFIX_PATH, the command as:")
 	message("list(APPEND CMAKE_PREFIX_PATH \"xxx install path\")" )
 	message(FATAL_ERROR  "Can't find Qt5 or Qt6!")
@@ -554,16 +561,14 @@ if(WIN32)
         list(APPEND DSView_SOURCES applogo.rc)
 endif()
 
-if(Qt5Core_FOUND)
-	qt5_wrap_cpp(DSView_HEADERS_MOC ${DSView_HEADERS})
-	qt5_wrap_ui(DSView_FORMS_HEADERS ${DSView_FORMS})
-	qt5_add_resources(DSView_RESOURCES_RCC ${DSView_RESOURCES})
-endif()
-
 if(Qt6Core_FOUND)
 	qt6_wrap_cpp(DSView_HEADERS_MOC ${DSView_HEADERS})
 	qt6_wrap_ui(DSView_FORMS_HEADERS ${DSView_FORMS})
 	qt6_add_resources(DSView_RESOURCES_RCC ${DSView_RESOURCES})
+elseif(Qt5Core_FOUND)
+	qt5_wrap_cpp(DSView_HEADERS_MOC ${DSView_HEADERS})
+	qt5_wrap_ui(DSView_FORMS_HEADERS ${DSView_FORMS})
+	qt5_add_resources(DSView_RESOURCES_RCC ${DSView_RESOURCES})
 endif()
 
 
@@ -711,5 +716,4 @@ if(ENABLE_TESTS)
 	enable_testing()
 	add_test(test ${CMAKE_CURRENT_BINARY_DIR}/DSView/test/DSView-test)
 endif(ENABLE_TESTS)
-
 
