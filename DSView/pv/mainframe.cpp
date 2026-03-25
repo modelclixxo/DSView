@@ -73,7 +73,11 @@ namespace {
 bool prefer_native_wayland_frame()
 {
     const QByteArray value = qgetenv("DSVIEW_WAYLAND_NATIVE_FRAME").trimmed().toLower();
-    return value == "1" || value == "true" || value == "yes";
+    if (value.isEmpty()) {
+        return true;
+    }
+
+    return !(value == "0" || value == "false" || value == "no");
 }
 
 }
@@ -114,8 +118,8 @@ MainFrame::MainFrame()
 #else
     const bool wayland = ui::is_wayland_platform();
     _use_native_window_frame = ui::use_native_window_frame();
-    if (wayland && !prefer_native_wayland_frame()) {
-        _use_native_window_frame = false;
+    if (wayland) {
+        _use_native_window_frame = prefer_native_wayland_frame();
     }
 
     if (_use_native_window_frame) {
