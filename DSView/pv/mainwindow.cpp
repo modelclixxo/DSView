@@ -1381,15 +1381,21 @@ namespace pv
 
         if (language == LAN_CN)
         {
-            _qtTrans.load(":/qt_" + QString::number(language));
-            qApp->installTranslator(&_qtTrans);
-            _myTrans.load(":/my_" + QString::number(language));
-            qApp->installTranslator(&_myTrans);
+            if (_qtTrans.load(":/qt_" + QString::number(language))) {
+                qApp->installTranslator(&_qtTrans);
+            }
+            if (_myTrans.load(":/my_" + QString::number(language))) {
+                qApp->installTranslator(&_myTrans);
+            }
         }
         else if (language != LAN_EN)
         {
             const QString locale = GetLanguageQtLocale(language);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            const QString translationsPath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
+#else
             const QString translationsPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+#endif
 
             if (_qtTrans.load("qtbase_" + locale, translationsPath)) {
                 qApp->installTranslator(&_qtTrans);

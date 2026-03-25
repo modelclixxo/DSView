@@ -121,7 +121,15 @@ void KeyLineEdit::wheelEvent(QWheelEvent *event)
             int v = new_text.toInt();
             int old_v = v;
 
-            if (event->delta() > 0){
+            int delta = 0;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            const QPoint angleDelta = event->angleDelta();
+            delta = angleDelta.y() != 0 ? angleDelta.y() : angleDelta.x();
+#else
+            delta = event->delta();
+#endif
+
+            if (delta > 0){
                 v++;
             }
             else{
