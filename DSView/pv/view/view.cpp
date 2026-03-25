@@ -1051,6 +1051,7 @@ void View::make_cursors_order()
 
 void View::add_cursor(QColor color, uint64_t sampleIndex)
 {
+    (void)color;
     Cursor *newCursor = new Cursor(*this, -1, sampleIndex);
     get_cursorList().push_back(newCursor);
     make_cursors_order();
