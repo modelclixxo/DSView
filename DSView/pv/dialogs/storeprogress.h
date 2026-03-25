@@ -23,6 +23,7 @@
 #ifndef DSVIEW_PV_DIALOGS_SAVEPROGRESS_H
 #define DSVIEW_PV_DIALOGS_SAVEPROGRESS_H
  
+#include <QProgressBar>
 #include <QTimer>
 #include "../storesession.h"
 #include "../dialogs/dsdialog.h" 
@@ -34,7 +35,6 @@ class QGridLayout;
 class QPushButton;
 class QWidget;
 class QComboBox;
-class QProgressBar;
 
 namespace pv {
     namespace view {
@@ -81,7 +81,7 @@ private slots:
 
 private:
     pv::StoreSession    *_store_session;
-    QProgressBar        *_progress;
+    QProgressBar        _progress;
     bool                _isExport;
     QTextEdit           *_fileLab;
     QRadioButton        *_ckOrigin;
@@ -93,8 +93,7 @@ private:
     QComboBox           *_end_cursor;
     view::View          *_view; 
     bool                _is_done;
-    QTimer              m_timer;
-    QString             _file_path;
+    QTimer              m_timer; 
 };
 
 } // dialogs

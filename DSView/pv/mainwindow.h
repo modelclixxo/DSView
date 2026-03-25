@@ -134,8 +134,6 @@ public:
     void switchLanguage(int language) override;
     bool able_to_close();    
     QWidget* GetBodyView();
-
-    void OnWindowsPowerEvent(bool bEnterSleep);
     
 private: 
 	void setup_ui();

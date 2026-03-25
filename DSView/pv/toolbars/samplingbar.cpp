@@ -792,8 +792,6 @@ namespace pv
                                                              _sample_rate.currentIndex())
                                                  .value<uint64_t>();
 
-                _session->set_capture_work_time((uint64_t)sample_duration);
-
                 if (_device_agent->have_instance())
                 {
                     if (sample_rate != _device_agent->get_sample_rate())
@@ -1144,7 +1142,7 @@ namespace pv
                 if (i == select_index)
                     cur_dev_handle = p->handle;
             }
-            g_free(array);
+            free(array);
 
             _device_selector.setCurrentIndex(select_index);
 

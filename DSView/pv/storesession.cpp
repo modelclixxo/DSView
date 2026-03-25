@@ -48,7 +48,6 @@
 #include <math.h>
 #include <QTextStream>
 #include <list>
-#include <string.h>
 
 #ifdef _WIN32
 #include <QTextCodec>
@@ -60,8 +59,8 @@
 #include "utility/encoding.h"
 #include "utility/path.h"
 #include "log.h" 
+
 #include "ui/langresource.h"
- #include "utility/formatting.h"
 
 #define DEOCDER_CONFIG_VERSION  2
  
@@ -222,6 +221,9 @@ void StoreSession::save_logic(pv::data::LogicSnapshot *logic_snapshot)
 {
     char chunk_name[20] = {0};
     uint16_t to_save_probes = 0;
+    bool sample;
+    int ret = SR_ERR;
+    int num;
 
     for(auto s : _session->get_signals()) {
         if (s->enabled() && logic_snapshot->has_data(s->get_index()))
@@ -229,7 +231,7 @@ void StoreSession::save_logic(pv::data::LogicSnapshot *logic_snapshot)
     }
 
     _unit_count = logic_snapshot->get_ring_sample_count() / 8 * to_save_probes;
-    int block_count = logic_snapshot->get_block_num();
+    num = logic_snapshot->get_block_num();
 
     uint64_t start_index = _start_index;
     uint64_t end_index = _end_index;
@@ -250,7 +252,7 @@ void StoreSession::save_logic(pv::data::LogicSnapshot *logic_snapshot)
 
     if (start_index > 0){
         start_index -= start_index % 64;         
-        start_block = logic_snapshot->get_block_index_with_sample(start_index, &start_offset);
+        start_block = LogicSnapshot::get_block_with_sample(start_index, &start_offset);
     }
     if (end_index > 0){
         if (end_index % 64 != 0){
@@ -261,7 +263,7 @@ void StoreSession::save_logic(pv::data::LogicSnapshot *logic_snapshot)
             end_index = 0;
         }
         else{
-            end_block = logic_snapshot->get_block_index_with_sample(end_index, &end_offset);
+            end_block = LogicSnapshot::get_block_with_sample(end_index, &end_offset);
         }
     }
 
@@ -276,93 +278,81 @@ void StoreSession::save_logic(pv::data::LogicSnapshot *logic_snapshot)
     }
 
     for(auto s : _session->get_signals()) 
-    { 
+    {
         int ch_type = s->get_type();
-        if (ch_type != SR_CHANNEL_LOGIC){
-            continue;
-        }
-
-        int ch_index = s->get_index();
-        if (!s->enabled() || !logic_snapshot->has_data(ch_index)){
-            continue;
-        }
-
-        for (int i = 0; !_canceled && i < block_count; i++) 
-        {
-            if (i < start_block){
+        if (ch_type == SR_CHANNEL_LOGIC) {
+            int ch_index = s->get_index();
+            if (!s->enabled() || !logic_snapshot->has_data(ch_index))
                 continue;
-            }
-            if (i > end_block && end_block > 0){
-                break;
-            }
 
-            bool flag = false;
-            uint8_t *block_buf = logic_snapshot->get_block_buf(i, ch_index, flag);
-            uint64_t block_size = logic_snapshot->get_block_size(i);
-            bool need_malloc = (block_buf == NULL);
-
-            if (i == end_block && end_offset / 8 < block_size && end_offset > 0){
-                block_size = end_offset / 8;
-            }
-
-            if (i == start_block && start_offset > 0){
-                if (block_buf != NULL){
-                    block_buf += start_offset / 8;
+            for (int i = 0; !_canceled && i < num; i++) 
+            {
+                if (i < start_block){
+                    continue;
                 }
-                block_size -= start_offset / 8;
-            }
+                if (i > end_block && end_block > 0){
+                    break;
+                }
+
+                uint8_t *buf = logic_snapshot->get_block_buf(i, ch_index, sample);
+                uint64_t size = logic_snapshot->get_block_size(i);
+                bool need_malloc = (buf == NULL);
+
+                if (i == end_block && end_offset / 8 < size && end_offset > 0){
+                    size = end_offset / 8;
+                }
+
+                if (i == start_block && start_offset > 0){
+                    if (buf != NULL){
+                        buf += start_offset / 8;
+                    }
+                    size -= start_offset / 8;
+                }
                 
-            if (need_malloc) {
-                block_buf = (uint8_t *)malloc(block_size);
-                if (block_buf == NULL) {
-                    _has_error = true;
-                    _error = L_S(STR_PAGE_DLG, S_ID(IDS_MSG_STORESESS_SAVEPROC_ERROR1), 
-                                "Failed to create zip file. Malloc error.");
+                if (need_malloc) {
+                    buf = (uint8_t *)malloc(size);
+                    if (buf == NULL) {
+                        _has_error = true;
+                        _error = L_S(STR_PAGE_DLG, S_ID(IDS_MSG_STORESESS_SAVEPROC_ERROR1), 
+                                    "Failed to create zip file. Malloc error.");
+                    } else {
+                        memset(buf, sample ? 0xff : 0x0, size);
+                    }
                 }
-                else {
-                    memset(block_buf, flag ? 0xff : 0x0, block_size);
-                }
-            }
-            
-            MakeChunkName(chunk_name, i - start_block, ch_index, ch_type, HEADER_FORMAT_VERSION);
-            int ret = m_zipDoc.AddFromBuffer(chunk_name, (const char*)block_buf, block_size) ? SR_OK : -1;
+                
+                MakeChunkName(chunk_name, i - start_block, ch_index, ch_type, HEADER_FORMAT_VERSION);
+                ret = m_zipDoc.AddFromBuffer(chunk_name, (const char*)buf, size) ? SR_OK : -1;
 
-            if (ret != SR_OK) {
-                if (!_has_error) {
-                    _has_error = true;
-                    _error = L_S(STR_PAGE_DLG, S_ID(IDS_MSG_STORESESS_SAVEPROC_ERROR2), 
-                                "Failed to create zip file. Please check write permission of this path.");
+                if (ret != SR_OK) {
+                    if (!_has_error) {
+                        _has_error = true;
+                        _error = L_S(STR_PAGE_DLG, S_ID(IDS_MSG_STORESESS_SAVEPROC_ERROR2), 
+                                    "Failed to create zip file. Please check write permission of this path.");
+                    }
+                    progress_updated();
+                    if (_has_error)
+                        QFile::remove(_file_name);
+                    return;
                 }
+                _units_stored += size;
+
+                if (_units_stored > _unit_count 
+                        && start_index == 0
+                        && end_index == 0){
+                    dsv_err("Read block data error!");
+                    assert(false);
+                }
+
+                if (need_malloc)
+                    free(buf);
                 progress_updated();
-
-                if (_has_error){
-                    QFile::remove(_file_name);
-                }
-                if (need_malloc){
-                    free(block_buf);
-                }
-
-                return;
             }
-            _units_stored += block_size;
-
-            if (_units_stored > _unit_count 
-                    && start_index == 0
-                    && end_index == 0){
-                dsv_err("Read block data error!");
-                assert(false);
-            }
-
-            if (need_malloc){
-                free(block_buf);
-            }
-            progress_updated();
-        }        
+        }
     }
 
     progress_updated();
 
-    if (_canceled || block_count == 0){
+    if (_canceled || num == 0){
         QFile::remove(_file_name);
     }
     else {
@@ -590,6 +580,8 @@ bool StoreSession::meta_gen(data::Snapshot *snapshot, std::string &str)
 
         uint64_t start_index = _start_index;
         uint64_t end_index = _end_index;
+        uint64_t start_offset = 0;
+        uint64_t end_offset = 0;
         int start_block = 0;
         int end_block = 0;
 
@@ -597,10 +589,10 @@ bool StoreSession::meta_gen(data::Snapshot *snapshot, std::string &str)
             end_index = 0;
         }
         if (start_index > 0){
-            start_block = logic_snapshot->get_block_index_with_sample(start_index, NULL);
+            start_block = LogicSnapshot::get_block_with_sample(start_index, &start_offset);
         }
         if (end_index > 0){
-            end_block = logic_snapshot->get_block_index_with_sample(end_index, NULL);
+            end_block = LogicSnapshot::get_block_with_sample(end_index, &end_offset);
         }
 
         if (start_index > 0 && end_index > 0){
@@ -618,9 +610,8 @@ bool StoreSession::meta_gen(data::Snapshot *snapshot, std::string &str)
     }
 
     s = sr_samplerate_string(_session->cur_snap_samplerate());
+
     sprintf(meta, "samplerate = %s\n", s); str += meta;
-    g_free(s);
-    s = NULL;
 
     uint64_t tmp_u64;
     int tmp_u8;
@@ -921,10 +912,7 @@ void StoreSession::export_exec(data::Snapshot *snapshot)
         return;
        }
     }
-  
-    QString dateTimeString = Formatting::DateTimeToString(_session->get_session_time(), TimeStrigFormatType::TIME_STR_FORMAT_ALL);
-    strcpy(output.time_string, dateTimeString.toStdString().c_str());
-    
+
     QFile file(_file_name);
     file.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream out(&file); 
@@ -991,16 +979,17 @@ void StoreSession::export_exec(data::Snapshot *snapshot)
 
     if (channel_type == SR_CHANNEL_LOGIC) {
         _unit_count = logic_snapshot->get_ring_sample_count();
-        int blk_num = logic_snapshot->get_block_num();       
+        int blk_num = logic_snapshot->get_block_num();
+        bool sample;
         std::vector<uint8_t *> buf_vec;
         std::vector<bool> buf_sample;
 
         uint64_t start_index = _start_index;
         uint64_t end_index = _end_index;
-        int start_block = 0;
-        int end_block = 0;
         uint64_t start_offset = 0;
         uint64_t end_offset = 0;
+        int start_block = 0;
+        int end_block = 0;
 
         if (start_index > logic_snapshot->get_ring_sample_count()){
             dsv_err("ERROR:the start curosr is invalid!");
@@ -1013,10 +1002,10 @@ void StoreSession::export_exec(data::Snapshot *snapshot)
         }
 
         if (start_index > 0){
-            start_block = logic_snapshot->get_block_index_with_sample(start_index, &start_offset);
+            start_block = LogicSnapshot::get_block_with_sample(start_index, &start_offset);
         }
         if (end_index > 0){
-            end_block = logic_snapshot->get_block_index_with_sample(end_index, &end_offset);
+            end_block = LogicSnapshot::get_block_with_sample(end_index, &end_offset);
         }
 
         if (start_index > 0 && end_index > 0){
@@ -1029,7 +1018,8 @@ void StoreSession::export_exec(data::Snapshot *snapshot)
             _unit_count = end_index;
         }
 
-        for (int blk = 0; !_canceled  &&  blk < blk_num; blk++) {           
+        for (int blk = 0; !_canceled  &&  blk < blk_num; blk++) {
+            uint64_t buf_sample_num = logic_snapshot->get_block_size(blk) * 8;
             buf_vec.clear();
             buf_sample.clear();
 
@@ -1038,54 +1028,32 @@ void StoreSession::export_exec(data::Snapshot *snapshot)
             if (blk > end_block && end_block > 0)
                 break;
 
-            uint64_t block_size = logic_snapshot->get_block_size(blk);
-
-            if (blk == end_block && end_offset / 8 < block_size && end_offset > 0){
-                block_size = end_offset / 8;
-            }
-            if (blk == start_block && start_offset > 0){
-                block_size -= start_offset / 8;
-            }
- 
             for(auto s : _session->get_signals()) {
                 int ch_type = s->get_type();
                 if (ch_type == SR_CHANNEL_LOGIC) {
                     int ch_index = s->get_index();
-
-                    if (!logic_snapshot->has_data(ch_index)){
+                    if (!logic_snapshot->has_data(ch_index))
                         continue;
-                    }
-
-                    bool flag = false;
-                    uint8_t *block_buf = logic_snapshot->get_block_buf(blk, ch_index, flag);
-
-                    if (start_block == blk && start_offset > 0 && block_buf != NULL){
-                        block_buf += start_offset / 8;
-                    }
-
-                    buf_vec.push_back(block_buf);
-                    buf_sample.push_back(flag);
+                    uint8_t *buf = logic_snapshot->get_block_buf(blk, ch_index, sample);
+                    buf_vec.push_back(buf);
+                    buf_sample.push_back(sample);
                 }
             }
 
-            const uint16_t unitsize = ceil(buf_vec.size() / 8.0);
+            uint16_t unitsize = ceil(buf_vec.size() / 8.0);
             unsigned int usize = 8192;
             unsigned int size = usize;
-            const uint64_t buf_sample_num = block_size * 8;            
             struct sr_datafeed_logic lp;
 
-            uint8_t *xbuf = (uint8_t *)malloc(size * unitsize);
-            if (xbuf == NULL) {
-                _has_error = true;
-                _error = L_S(STR_PAGE_DLG, S_ID(IDS_MSG_STORESESS_EXPORTPROC_ERROR2), "xbuffer malloc failed.");
-                return;
-            }
-
             for(uint64_t i = 0; !_canceled && i < buf_sample_num; i+=usize){
-                if(buf_sample_num - i < usize){
+                if(buf_sample_num - i < usize)
                     size = buf_sample_num - i;
-                }
-
+                uint8_t *xbuf = (uint8_t *)malloc(size * unitsize);
+                if (xbuf == NULL) {
+                    _has_error = true;
+                    _error = L_S(STR_PAGE_DLG, S_ID(IDS_MSG_STORESESS_EXPORTPROC_ERROR2), "xbuffer malloc failed.");
+                    return;
+                }                
                 memset(xbuf, 0, size * unitsize);
 
                 for (uint64_t j = 0; j < size; j++) {
@@ -1111,13 +1079,10 @@ void StoreSession::export_exec(data::Snapshot *snapshot)
                     g_string_free(data_out,TRUE);
                 }
 
-                _units_stored += size;              
+                _units_stored += size;
+                if (xbuf)
+                    free(xbuf);
                 progress_updated();
-            }
-
-            if (xbuf){
-                free(xbuf);
-                xbuf = NULL;
             }
         }
     }
@@ -1649,8 +1614,7 @@ QString StoreSession::MakeSaveFile(bool bDlg)
         }
     }
 
-    QString dateTimeString = Formatting::DateTimeToString(_session->get_session_time(), TimeStrigFormatType::TIME_STR_FORMAT_SHORT2);
-    default_name += "-" + dateTimeString;
+    default_name += _session->get_session_time().toString("-yyMMdd-hhmmss");
 
     // Show the dialog
     if (bDlg)
@@ -1708,9 +1672,7 @@ QString StoreSession::MakeExportFile(bool bDlg)
             break;
         }
     }
-
-    QString dateTimeString = Formatting::DateTimeToString(_session->get_session_time(), TimeStrigFormatType::TIME_STR_FORMAT_SHORT2);
-    default_name += "-" + dateTimeString;
+    default_name += _session->get_session_time().toString("-yyMMdd-hhmmss");
 
     //ext name
     QList<QString> supportedFormats = getSuportedExportFormats();

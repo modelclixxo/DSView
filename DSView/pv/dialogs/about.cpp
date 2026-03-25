@@ -25,9 +25,11 @@
 
 #include <QPixmap>
 #include <QApplication>
+#include <QCoreApplication>
 #include <QTextBrowser>
 #include <QFile>
 #include <QDir>
+#include <QStringList>
 #include <QTextStream>
 #include <QScrollBar>
   
@@ -38,6 +40,34 @@
 
 namespace pv {
 namespace dialogs {
+
+namespace {
+
+QString resolve_news_file(int language)
+{
+    QStringList candidates;
+    const QDir appDataDir(GetAppDataDir());
+    candidates << appDataDir.absoluteFilePath("NEWS" + QString::number(language))
+               << appDataDir.absoluteFilePath("NEWS" + QString::number(LAN_EN))
+               << appDataDir.absoluteFilePath("NEWS");
+
+    QDir repoDir(QCoreApplication::applicationDirPath());
+    if (repoDir.cd("..")) {
+        candidates << repoDir.absoluteFilePath("NEWS" + QString::number(language))
+                   << repoDir.absoluteFilePath("NEWS" + QString::number(LAN_EN))
+                   << repoDir.absoluteFilePath("NEWS");
+    }
+
+    for (const QString &candidate : candidates) {
+        if (QFile::exists(candidate)) {
+            return candidate;
+        }
+    }
+
+    return QString();
+}
+
+} // namespace
 
 About::About(QWidget *parent) :
     DSDialog(parent, true)
@@ -57,7 +87,7 @@ About::About(QWidget *parent) :
         QString arch = "other";
     #endif
 
-    QString version = tr("<font size=24>DSView %1 (%2)</font><br />")
+    QString version = QStringLiteral("<font size=24>DSView %1 (%2)</font><br />")
                       .arg(QApplication::applicationVersion())
                       .arg(arch);
 
@@ -66,29 +96,36 @@ About::About(QWidget *parent) :
         site_url = "https://" + site_url;
     }
 
-    QString url = tr("Website: <a href=\"%1\" style=\"color:#C0C0C0\">%1</a><br />"
-                     "Github: <a href=\"%2\" style=\"color:#C0C0C0\">%2</a><br />"
-                     "Copyright: <label href=\"#\" style=\"color:#C0C0C0\">%3</label><br />"
+    QString url = QStringLiteral("%1: <a href=\"%2\" style=\"color:#C0C0C0\">%2</a><br />"
+                     "%3: <a href=\"%4\" style=\"color:#C0C0C0\">%4</a><br />"
+                     "%5: <label href=\"#\" style=\"color:#C0C0C0\">%6</label><br />"
                      "<br /><br />")
+                  .arg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_ABOUT_WEBSITE), "Website"))
                   .arg(site_url)
+                  .arg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_ABOUT_GITHUB), "GitHub"))
                   .arg("https://github.com/DreamSourceLab/DSView")
-                  .arg(tr("© DreamSourceLab. All rights reserved."));
+                  .arg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_ABOUT_COPYRIGHT), "Copyright"))
+                  .arg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_ABOUT_COPYRIGHT_TEXT), "© DreamSourceLab. All rights reserved."));
 
-    QString thanks = tr("<font size=16>Special Thanks</font><br />"
-                        "<a href=\"%1\" style=\"color:#C0C0C0\">All backers on kickstarter</a><br />"
-                        "<a href=\"%2\" style=\"color:#C0C0C0\">All members of Sigrok project</a><br />"
-                        "All contributors of all open-source projects</a><br />"
+    QString thanks = QStringLiteral("<font size=16>%1</font><br />"
+                        "<a href=\"%2\" style=\"color:#C0C0C0\">%3</a><br />"
+                        "<a href=\"%4\" style=\"color:#C0C0C0\">%5</a><br />"
+                        "%6</a><br />"
                         "<br /><br />")
+                        .arg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_ABOUT_SPECIAL_THANKS), "Special Thanks"))
                         .arg("https://www.kickstarter.com/projects/dreamsourcelab/dslogic-multifunction-instruments-for-everyone")
-                        .arg("http://sigrok.org/");
+                        .arg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_ABOUT_KICKSTARTER), "All backers on Kickstarter"))
+                        .arg("http://sigrok.org/")
+                        .arg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_ABOUT_SIGROK), "All members of Sigrok project"))
+                        .arg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_ABOUT_OPEN_SOURCE), "All contributors of open-source projects"));
 
-    QString changlogs = tr("<font size=16>Changelogs</font><br />");
+    QString changlogs = QStringLiteral("<font size=16>%1</font><br />")
+        .arg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_ABOUT_CHANGELOGS), "Changelogs"));
 
-    QDir dir(GetAppDataDir());
     AppConfig &app = AppConfig::Instance(); 
     int lan = app.frameOptions.language;
 
-    QString filename = dir.absolutePath() + "/NEWS" + QString::number(lan);
+    const QString filename = resolve_news_file(lan);
     QFile news(filename);
     if (news.open(QIODevice::ReadOnly)) {
    

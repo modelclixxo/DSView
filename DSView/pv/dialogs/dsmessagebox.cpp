@@ -39,12 +39,11 @@ namespace dialogs {
 
 DSMessageBox::DSMessageBox(QWidget *parent,const QString title) :
 #ifdef Q_OS_LINUX
-    QDialog(NULL)  //enable the popup dialog draged.
+    QDialog(ui::use_native_window_frame() ? parent : NULL)
 #else
     QDialog(parent)
 #endif
 {
-    (void)parent;
     _layout = NULL;
     _main_widget = NULL;
     _msg = NULL;
@@ -54,35 +53,44 @@ DSMessageBox::DSMessageBox(QWidget *parent,const QString title) :
 
     _bClickYes = false;
 
-    setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
-    setAttribute(Qt::WA_TranslucentBackground);
+    setWindowFlags(ui::stable_window_flags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint));
+    if (ui::allow_translucent_windows()){
+        setAttribute(Qt::WA_TranslucentBackground);
+    }
+
+    const bool useNativeWindowFrame = ui::use_native_window_frame();
 
     _main_widget = new QWidget(this);
     _main_layout = new QVBoxLayout(_main_widget);
     _main_widget->setLayout(_main_layout);  
 
-    _shadow = new Shadow(this);
     _msg = new QMessageBox(this);
     _titlebar = new toolbars::TitleBar(false, this, NULL, false);
     _layout = new QVBoxLayout(this);
- 
-    _shadow->setBlurRadius(10.0);
-    _shadow->setDistance(3.0);
-    _shadow->setColor(QColor(0, 0, 0, 80));
 
     _main_widget->setAutoFillBackground(true);
-    this->setGraphicsEffect(_shadow);  
+    if (!useNativeWindowFrame) {
+        _shadow = new Shadow(this);
+        _shadow->setBlurRadius(10.0);
+        _shadow->setDistance(3.0);
+        _shadow->setColor(QColor(0, 0, 0, 80));
+        this->setGraphicsEffect(_shadow);
+    }
 
-    _msg->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);   
+    _msg->setWindowFlags(ui::stable_window_flags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint));   
 
     if (!title.isEmpty()){
+        QDialog::setWindowTitle(title);
         _titlebar->setTitle(title);
     }
     else{
-        _titlebar->setTitle(L_S(STR_PAGE_MSG, S_ID(IDS_MSG_MESSAGE), "Message"));
+        const QString defaultTitle = L_S(STR_PAGE_MSG, S_ID(IDS_MSG_MESSAGE), "Message");
+        QDialog::setWindowTitle(defaultTitle);
+        _titlebar->setTitle(defaultTitle);
     }
     
     _main_layout->addWidget(_titlebar);
+    _titlebar->setVisible(!useNativeWindowFrame);
     _main_layout->addWidget(_msg);   
     _layout->addWidget(_main_widget);
 

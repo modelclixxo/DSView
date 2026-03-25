@@ -98,7 +98,7 @@
     {
         "id": "IDS_TOOLBAR_DISPLAY_LISSAJOUS",
         "text": "李萨如图(&A)"
-    },  
+    },
     {
         "id": "IDS_TOOLBAR_DISPLAY_THEMES_DARK",
         "text": "暗黑(&D)"
@@ -106,7 +106,7 @@
     {
         "id": "IDS_TOOLBAR_DISPLAY_THEMES_LIGHT",
         "text": "清新(&L)"
-    },   
+    },
     {
         "id": "IDS_TOOLBAR_DISPLAY_OPTIONS",
         "text": "选项(&O)"
@@ -182,5 +182,17 @@
     {
         "id": "IDS_TOOLBAR_HELP_LOG",
         "text": "日志选项(&L)"
+    },
+    {
+        "id": "IDS_TOOLBAR_HELP_LANG_DE",
+        "text": "Deutsch(&D)"
+    },
+    {
+        "id": "IDS_TOOLBAR_HELP_LANG_FR",
+        "text": "Français(&F)"
+    },
+    {
+        "id": "IDS_TOOLBAR_HELP_LANG_IT",
+        "text": "Italiano(&I)"
     }
 ]

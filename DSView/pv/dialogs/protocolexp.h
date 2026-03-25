@@ -29,7 +29,6 @@
 #include <QLabel>
 #include <QCheckBox> 
 #include <QString>
-#include <QTimer>
  
 #include "../prop/binding/deviceoptions.h"
 #include "../toolbars/titlebar.h"
@@ -65,21 +64,18 @@ private:
 public:
     ProtocolExp(QWidget *parent, SigSession *session);
 
-protected:   
+protected:
+    void accept();
+    void reject();
     void save_proc();
     static bool compare_ann_index(const data::decode::Annotation *a, 
                     const data::decode::Annotation *b);
-
-    void closeSelf();
 
 signals:
     void export_progress(int percent);
 
 private slots:
     void cancel_export();
-    void onAccept();
-    void onReject();
-    void on_timeout();
 
 private:
     SigSession *_session;
@@ -94,8 +90,6 @@ private:
 
     bool _export_cancel;
     QString     _fileName; 
-    QTimer      m_timer; 
-    bool        _bAbleClose;
 };
 
 } // namespace dialogs

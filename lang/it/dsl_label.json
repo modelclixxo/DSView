@@ -1,0 +1,146 @@
+[
+    {
+        "id": "Connection",
+        "text": "Connessione"
+    },
+    {
+        "id": "Serial communication",
+        "text": "Comunicazione seriale"
+    },
+    {
+        "id": "Sample rate",
+        "text": "Sample rate"
+    },
+    {
+        "id": "Sample depth",
+        "text": "Sample depth"
+    },
+    {
+        "id": "Sample count",
+        "text": "Sample count"
+    },
+    {
+        "id": "Using External Clock",
+        "text": "Utilizzo dell'orologio esterno"
+    },
+    {
+        "id": "Using Clock Negedge",
+        "text": "Using Clock Negedge"
+    },
+    {
+        "id": "Pre-trigger capture ratio",
+        "text": "Rapporto di cattura pre-trigger"
+    },
+    {
+        "id": "Run Length Encoding",
+        "text": "Codifica della lunghezza di esecuzione"
+    },
+    {
+        "id": "Wait Buffer Upload",
+        "text": "Attendi il caricamento del buffer"
+    },
+    {
+        "id": "Trigger slope",
+        "text": "Trigger slope"
+    },
+    {
+        "id": "Trigger source",
+        "text": "Trigger source"
+    },
+    {
+        "id": "Trigger channel",
+        "text": "Trigger channel"
+    },
+    {
+        "id": "Horizontal trigger position",
+        "text": "Posizione del grilletto orizzontale"
+    },
+    {
+        "id": "Trigger hold off",
+        "text": "Trigger hold off"
+    },
+    {
+        "id": "Trigger margin",
+        "text": "Trigger margin"
+    },
+    {
+        "id": "Buffer size",
+        "text": "Dimensione del buffer"
+    },
+    {
+        "id": "Time base",
+        "text": "Base temporale"
+    },
+    {
+        "id": "Max Height",
+        "text": "Altezza massima"
+    },
+    {
+        "id": "Max Height value",
+        "text": "Valore di altezza massima"
+    },
+    {
+        "id": "Filter Targets",
+        "text": "Filtra obiettivi"
+    },
+    {
+        "id": "Datalog",
+        "text": "Registro dati"
+    },
+    {
+        "id": "Operation Mode",
+        "text": "Modalità operativa"
+    },
+    {
+        "id": "Stop Options",
+        "text": "Opzioni di arresto"
+    },
+    {
+        "id": "Channel Mode",
+        "text": "Modalità canale"
+    },
+    {
+        "id": "Threshold Levels",
+        "text": "Livelli di soglia"
+    },
+    {
+        "id": "Threshold Level",
+        "text": "Livello di soglia"
+    },
+    {
+        "id": "Enable RLE Compress",
+        "text": "Abilita RLE Comprimi"
+    },
+    {
+        "id": "Bandwidth Limit",
+        "text": "Limite di larghezza di banda"
+    },
+    {
+        "id": "Coupling",
+        "text": "Accoppiamento"
+    },
+    {
+        "id": "Volts/div",
+        "text": "Volt/div"
+    },
+    {
+        "id": "Probe Factor",
+        "text": "Fattore sonda"
+    },
+    {
+        "id": "Map Default",
+        "text": "Mappa predefinita"
+    },
+    {
+        "id": "Map Unit",
+        "text": "Unità cartografica"
+    },
+    {
+        "id": "Map Min",
+        "text": "Mappa min"
+    },
+    {
+        "id": "Map Max",
+        "text": "Mappa max"
+    }
+]

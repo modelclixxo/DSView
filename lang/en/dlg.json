@@ -490,7 +490,7 @@
     {
         "id": "IDS_DLG_SERIAL_TRIGGER",
         "text": "Serial Trigger"
-    },   
+    },
     {
         "id": "IDS_DLG_STAGE_TRIGGER",
         "text": "Stage Trigger"
@@ -498,7 +498,7 @@
     {
         "id": "IDS_DLG_SERIAL_NOTE_LABEL",
         "text": "X: Don't care\n0: Low level\n1: High level\nR: Rising edge\nF: Falling edge\nC: Rising/Falling edge"
-    },  
+    },
     {
         "id": "IDS_DLG_DATA_BITS",
         "text": "Data Bits"
@@ -606,7 +606,7 @@
     {
         "id": "IDS_DLG_FALLING",
         "text": "Falling: "
-    },   
+    },
     {
         "id": "IDS_DLG_Edges_1",
         "text": "Edges: "
@@ -790,5 +790,41 @@
     {
         "id": "IDS_FFT_MODE_LINEARRSM",
         "text": "Linear RMS"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_WEBSITE",
+        "text": "Website"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_GITHUB",
+        "text": "GitHub"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_COPYRIGHT",
+        "text": "Copyright"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_COPYRIGHT_TEXT",
+        "text": "© DreamSourceLab. All rights reserved."
+    },
+    {
+        "id": "IDS_DLG_ABOUT_SPECIAL_THANKS",
+        "text": "Special Thanks"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_KICKSTARTER",
+        "text": "All backers on Kickstarter"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_SIGROK",
+        "text": "All members of Sigrok project"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_OPEN_SOURCE",
+        "text": "All contributors of open-source projects"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_CHANGELOGS",
+        "text": "Changelogs"
     }
 ]

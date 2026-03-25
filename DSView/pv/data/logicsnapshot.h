@@ -124,9 +124,9 @@ public:
 
     bool has_data(int sig_index);
     int get_block_num();
-    uint8_t *get_block_buf(int block_index, int sig_index, bool &sample);   
     uint64_t get_block_size(int block_index);
-    
+    uint8_t *get_block_buf(int block_index, int sig_index, bool &sample);
+ 
     bool pattern_search(int64_t start, int64_t end, int64_t& index,
                         std::map<uint16_t, QString> &pattern, bool isNext);
 
@@ -150,16 +150,9 @@ public:
         return _loop_offset;
     }
 
-    inline void cancel_search(){
-        _is_search_stop = true;
-    }
-
-    int get_block_index_with_sample(uint64_t sample_index, uint64_t *out_offset);
+    static int get_block_with_sample(uint64_t index, uint64_t *out_offset);
 
 private:
-    int get_block_num_unlock();
-    uint64_t get_block_size_unlock(int block_index);
-    uint8_t *get_block_buf_unlock(int block_index, int sig_index, bool &sample);
     bool get_sample_unlock(uint64_t index, int sig_index);
     bool get_sample_self(uint64_t index, int sig_index);
 
@@ -256,12 +249,11 @@ private:
     uint64_t    _last_sample[CHANNEL_MAX_COUNT];
     uint64_t    _last_calc_count[CHANNEL_MAX_COUNT];
     bool        _is_loop;
-    volatile uint64_t   _loop_offset;
+    uint64_t    _loop_offset;
     bool        _able_free;
     std::vector<void*> _free_block_list;
     struct BlockIndex _cur_ref_block_indexs[CHANNEL_MAX_COUNT];
     int         _lst_free_block_index;
-    bool        _is_search_stop;
  
 	friend class LogicSnapshotTest::Pow2;
 	friend class LogicSnapshotTest::Basic;

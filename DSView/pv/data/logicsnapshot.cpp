@@ -29,11 +29,8 @@
 #include "../dsvdef.h"
 #include "../log.h"
 #include "../utility/array.h"
-#include "../log.h"
 
 using namespace std;
-
-int _free_count = 0;
 
 namespace pv {
 namespace data {
@@ -59,7 +56,6 @@ LogicSnapshot::LogicSnapshot() :
     _is_loop = false;
     _loop_offset = 0;
     _able_free = true;
-    _is_search_stop = false;
 }
 
 LogicSnapshot::~LogicSnapshot()
@@ -113,8 +109,6 @@ void LogicSnapshot::clear()
     std::lock_guard<std::mutex> lock(_mutex);
     free_data();
     init_all();
-
-    _free_count = 0;
 }
 
 void LogicSnapshot::first_payload(const sr_datafeed_logic &logic, uint64_t total_sample_count, GSList *channels, bool able_free)
@@ -245,15 +239,15 @@ void LogicSnapshot::append_cross_payload(const sr_datafeed_logic &logic)
         _sample_count = _total_sample_count;
     }
 
+    //dsv_info("_loop_offset:%llu, _total_sample_count:%llu, _ring_sample_count:%llu, cur samples:%llu",
+    //    _loop_offset, _total_sample_count, _ring_sample_count, samples);
+
     if (_is_loop)
     {
-        if (_loop_offset >= LeafBlockSamples * Scale){     
+        if (_loop_offset >= LeafBlockSamples * Scale){        
             move_first_node_to_last();
             _loop_offset -= LeafBlockSamples * Scale;
             _lst_free_block_index = 0;
-
-       
-            dsv_info("free a node %d", ++_free_count);
         }
         else{
             int free_count = _loop_offset / LeafBlockSamples;
@@ -268,7 +262,8 @@ void LogicSnapshot::append_cross_payload(const sr_datafeed_logic &logic)
     // bit align
     while ((_ch_fraction != 0 || _byte_fraction != 0) && len > 0) 
     {
-        assert(_dest_ptr);
+        if (_dest_ptr == NULL)
+            assert(false);
 
         do{
             *_dest_ptr++ = *data_src_ptr++;
@@ -282,7 +277,6 @@ void LogicSnapshot::append_cross_payload(const sr_datafeed_logic &logic)
             index1 = (_ring_sample_count / LeafBlockSamples) % RootScale;
             offset = (_ring_sample_count % LeafBlockSamples) / 8;
 
-            //switch to the next channel.
             _ch_fraction = (_ch_fraction + 1) % _channel_num;
 
             lbp = _ch_data[_ch_fraction][index0].lbp[index1];
@@ -298,7 +292,7 @@ void LogicSnapshot::append_cross_payload(const sr_datafeed_logic &logic)
 
             _dest_ptr = (uint8_t*)lbp + offset;
 
-            // The last channel is read end, so the channel index switch to first.
+            // To the last channel.
             if (_ch_fraction == 0){
                 _ring_sample_count += Scale;
 
@@ -306,7 +300,7 @@ void LogicSnapshot::append_cross_payload(const sr_datafeed_logic &logic)
                     calc_mipmap(_channel_num - 1, index0, index1, LeafBlockSamples, true);
                 }                                
                 break;
-            }
+            }                
         }
     } 
 
@@ -327,8 +321,8 @@ void LogicSnapshot::append_cross_payload(const sr_datafeed_logic &logic)
         chans_read_addr[i] = (uint64_t*)data_src_ptr + i; 
     }
     
-    uint16_t fill_chan_index = 0;
-    uint16_t last_chan_index = 0;
+    uint16_t fill_chan = _ch_fraction;
+    uint16_t last_chan = _ch_fraction;
     index0 =  align_sample_count / LeafBlockSamples / RootScale;
     index1 = (align_sample_count / LeafBlockSamples) % RootScale;
     offset =  align_sample_count % LeafBlockSamples;
@@ -337,14 +331,14 @@ void LogicSnapshot::append_cross_payload(const sr_datafeed_logic &logic)
         assert(false);
     }
     
-    lbp = _ch_data[fill_chan_index][index0].lbp[index1];
+    lbp = _ch_data[fill_chan][index0].lbp[index1];
     if (lbp == NULL){
         lbp = malloc(LeafBlockSpace);
         if (lbp == NULL){
             dsv_err("LogicSnapshot::append_cross_payload, Malloc memory failed!");
             return;
         }
-        _ch_data[fill_chan_index][index0].lbp[index1] = lbp;
+        _ch_data[fill_chan][index0].lbp[index1] = lbp;
         memset(lbp, 0, LeafBlockSpace);
     }
 
@@ -357,22 +351,20 @@ void LogicSnapshot::append_cross_payload(const sr_datafeed_logic &logic)
         len -= 8;
         filled_sample += Scale;
 
-        last_chan_index++;
-        if (last_chan_index == _channel_num){
-            last_chan_index = 0;
+        last_chan++;
+        if (last_chan == _channel_num){
+            last_chan = 0;
         }
   
         if (filled_sample == LeafBlockSamples)
         {
-            calc_mipmap(fill_chan_index, index0, index1, LeafBlockSamples, true);
+            calc_mipmap(fill_chan, index0, index1, LeafBlockSamples, true);
 
-            chans_read_addr[fill_chan_index] = read_ptr; //Save the current read position.
-            fill_chan_index = (fill_chan_index + 1) % _channel_num; //Switch to the next channel index.
-            
-            //The last channel's data read ends, update the align sample count.
-            if (fill_chan_index == 0){
+            chans_read_addr[fill_chan] = read_ptr;
+            fill_chan = (fill_chan + 1) % _channel_num;
+
+            if (fill_chan == 0)
                 align_sample_count += (filled_sample - old_filled_sample);
-            }
 
             index0 =  align_sample_count / LeafBlockSamples / RootScale;
             index1 = (align_sample_count / LeafBlockSamples) % RootScale;
@@ -380,29 +372,28 @@ void LogicSnapshot::append_cross_payload(const sr_datafeed_logic &logic)
             filled_sample = align_sample_count % LeafBlockSamples;
             old_filled_sample = filled_sample;
 
-            lbp = _ch_data[fill_chan_index][index0].lbp[index1];
+            lbp = _ch_data[fill_chan][index0].lbp[index1];
             if (lbp == NULL){
                 lbp = malloc(LeafBlockSpace);
                 if (lbp == NULL){
                     dsv_err("LogicSnapshot::append_cross_payload, Malloc memory failed!");
                     return;
                 }
-                _ch_data[fill_chan_index][index0].lbp[index1] = lbp;
+                _ch_data[fill_chan][index0].lbp[index1] = lbp;
                 memset(lbp, 0, LeafBlockSpace);
             }
 
             write_ptr = (uint64_t*)lbp + offset / Scale;
-            read_ptr = chans_read_addr[fill_chan_index];
+            read_ptr = chans_read_addr[fill_chan];
         } 
         else if (read_ptr >= end_read_ptr) 
         {  
-            calc_mipmap(fill_chan_index, index0, index1, filled_sample, false);
+            calc_mipmap(fill_chan, index0, index1, filled_sample, false);
 
-            fill_chan_index = (fill_chan_index + 1) % _channel_num;    
+            fill_chan = (fill_chan + 1) % _channel_num;    
 
-            if (fill_chan_index == 0){
+            if (fill_chan == 0)
                 align_sample_count += (filled_sample - old_filled_sample);
-            }
 
             index0 =  align_sample_count / LeafBlockSamples / RootScale;
             index1 = (align_sample_count / LeafBlockSamples) % RootScale;
@@ -410,19 +401,19 @@ void LogicSnapshot::append_cross_payload(const sr_datafeed_logic &logic)
             filled_sample = align_sample_count % LeafBlockSamples;
             old_filled_sample = filled_sample;
 
-            lbp = _ch_data[fill_chan_index][index0].lbp[index1];
+            lbp = _ch_data[fill_chan][index0].lbp[index1];
             if (lbp == NULL){
                 lbp = malloc(LeafBlockSpace);
                 if (lbp == NULL){
                     dsv_err("LogicSnapshot::append_cross_payload, Malloc memory failed!");
                     return;
                 }
-                _ch_data[fill_chan_index][index0].lbp[index1] = lbp;
+                _ch_data[fill_chan][index0].lbp[index1] = lbp;
                 memset(lbp, 0, LeafBlockSpace);
             }
 
             write_ptr = (uint64_t*)lbp + offset / Scale;   
-            read_ptr = chans_read_addr[fill_chan_index];
+            read_ptr = chans_read_addr[fill_chan];
         }
     }
 
@@ -434,7 +425,7 @@ void LogicSnapshot::append_cross_payload(const sr_datafeed_logic &logic)
         _ring_sample_count = _total_sample_count; 
     }
 
-    _ch_fraction = last_chan_index;
+    _ch_fraction = last_chan;
 
     lbp = _ch_data[_ch_fraction][index0].lbp[index1];
     if (lbp == NULL){
@@ -601,70 +592,45 @@ void LogicSnapshot::calc_mipmap(unsigned int order, uint8_t index0, uint8_t inde
 } 
 
 const uint8_t *LogicSnapshot::get_samples(uint64_t start_sample, uint64_t &end_sample, int sig_index, void **lbp)
-{  
+{ 
     std::lock_guard<std::mutex> lock(_mutex);
 
     uint64_t sample_count = _ring_sample_count;
+
     assert(start_sample < sample_count);
 
-    uint64_t logic_sample_index = start_sample + _loop_offset;
+    if (end_sample >= sample_count)
+        end_sample = sample_count - 1;
+
+    assert(end_sample <= sample_count);
+    assert(start_sample <= end_sample);
+
+    start_sample += _loop_offset;
+    _ring_sample_count += _loop_offset;
 
     int order = get_ch_order(sig_index);
-   // uint64_t index0 =  logic_sample_index >> (LeafBlockPower + RootScalePower);
-   // uint64_t index1 = (logic_sample_index & RootMask) >> LeafBlockPower;
-   // uint64_t offset = (start_sample & LeafMask) / 8;
+    uint64_t index0 = start_sample >> (LeafBlockPower + RootScalePower);
+    uint64_t index1 = (start_sample & RootMask) >> LeafBlockPower;
+    uint64_t offset = (start_sample & LeafMask) / 8;
 
-    uint64_t index0 = logic_sample_index / LeafBlockSamples / RootScale;
-    uint64_t index1 = (logic_sample_index / LeafBlockSamples) % RootScale;
-    uint64_t offset = (start_sample % LeafBlockSamples) / 8;
-
-    uint8_t *block_buffer = (uint8_t*)_ch_data[order][index0].lbp[index1];
-
-     int block_num = get_block_num_unlock();
-
-    if (_is_loop && _loop_offset > 0)
-    { 
-        uint64_t block0_sample = get_block_size_unlock(0) * 8;
-        bool flag = false;
-
-        if (start_sample < block0_sample){            
-            block_buffer = get_block_buf_unlock(0, sig_index, flag);
-            end_sample = block0_sample;
-            offset = start_sample / 8;
-        }
-        else{
-            uint64_t last_block_sample = get_block_size_unlock(block_num - 1) * 8;
-            offset = ((start_sample - block0_sample) % LeafBlockSamples) / 8;
-
-            if (start_sample >= sample_count - last_block_sample){
-                end_sample = sample_count;               
-            }
-            else{
-                int mid_block_num = (start_sample - block0_sample) / LeafBlockSamples + 1;
-                end_sample = mid_block_num * LeafBlockSamples + block0_sample;
-            }
-        }
-    }
-    else{
-        end_sample = (index0 << (LeafBlockPower + RootScalePower)) +
+    end_sample = (index0 << (LeafBlockPower + RootScalePower)) +
                  (index1 << LeafBlockPower) +
                  ~(~0ULL << LeafBlockPower);
 
-        end_sample = min(end_sample + 1, sample_count);
-    }
+    end_sample = min(end_sample + 1, sample_count);
 
-    if (order == -1 || block_buffer == NULL){
+    _ring_sample_count -= _loop_offset;
+
+    if (order == -1 || _ch_data[order][index0].lbp[index1] == NULL)
         return NULL;
-    }
     else{
-        if (lbp != NULL){
+        if (lbp != NULL)
             *lbp = _ch_data[order][index0].lbp[index1];
-        }
 
         _cur_ref_block_indexs[order].root_index = index0;
         _cur_ref_block_indexs[order].lbp_index  = index1;
         
-        return block_buffer + offset;
+        return (uint8_t*)_ch_data[order][index0].lbp[index1] + offset;
     }
 }
 
@@ -1259,7 +1225,6 @@ bool LogicSnapshot::pattern_search(int64_t start, int64_t end, int64_t& index,
 {
     std::lock_guard<std::mutex> lock(_mutex);
     
-    _is_search_stop = false;
     start += _loop_offset;
     end += _loop_offset;
     index += _loop_offset;
@@ -1326,16 +1291,12 @@ bool LogicSnapshot::pattern_search_self(int64_t start, int64_t end, int64_t &ind
         index = end;
     }
 
-    while (index != to && !_is_search_stop)
+    while (index != to)
     {
         macthed = 0;
 
         for (int i = 0; i < count; i++)
         {
-            if (_is_search_stop){
-                break;
-            }
-
             val = (char)get_sample_self(index, chanIndexs[i]);
 
             if (flagList[i] == '0')
@@ -1393,44 +1354,17 @@ bool LogicSnapshot::has_data(int sig_index)
 
 int LogicSnapshot::get_block_num()
 {
-    std::lock_guard<std::mutex> lock(_mutex);
-    return get_block_num_unlock();
-}
-
-int LogicSnapshot::get_block_num_unlock()
-{  
-    auto align_sample_count = _ring_sample_count;
-    int block = align_sample_count / LeafBlockSamples;
-
-    if (align_sample_count % LeafBlockSamples != 0){
-        block++;
-    }
-
-    if (_loop_offset > 0){
-        uint64_t diff1 = align_sample_count % LeafBlockSamples;
-        uint64_t diff2 = _loop_offset % LeafBlockSamples;
-
-        if ((diff1 == 0 && diff2 != 0) ||
-                (diff1 != 0 && diff1 + diff2 > LeafBlockSamples)){
-            block++;
-        }
-    }
-
-    return block;
+   int block = ceil((_ring_sample_count+_loop_offset) * 1.0 / LeafBlockSamples) 
+            - floor(_loop_offset * 1.0 / LeafBlockSamples);
+   return block;
 }
 
 uint64_t LogicSnapshot::get_block_size(int block_index)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
-    return get_block_size_unlock(block_index);
-}
+    int block_num = get_block_num();
+    uint64_t samples = 0;
 
-uint64_t LogicSnapshot::get_block_size_unlock(int block_index)
-{
-    int block_num = get_block_num_unlock();
     assert(block_index < block_num);
-
-    auto align_sample_count = _ring_sample_count;
 
     if (_loop_offset > 0)
     {
@@ -1438,45 +1372,32 @@ uint64_t LogicSnapshot::get_block_size_unlock(int block_index)
             return LeafBlockSamples / 8;
         }
         else if (block_index == 0){
-            if (align_sample_count + _loop_offset <= LeafBlockSamples){
-                return align_sample_count / 8;
-            }
-            else{ 
-                return (LeafBlockSamples - _loop_offset % LeafBlockSamples) / 8;
-            }
+            samples = min(_ring_sample_count + (_loop_offset % (uint64_t)LeafBlockSamples),
+                        (uint64_t)LeafBlockSamples) - (_loop_offset % (uint64_t)LeafBlockSamples);
+            return samples/8;
         }
         else{
-            uint64_t sum_sample_count = align_sample_count + _loop_offset;
-
-            if (sum_sample_count % LeafBlockSamples == 0)
-                return LeafBlockSamples / 8;
-            else
-                return (sum_sample_count % LeafBlockSamples) / 8;
+            samples = (_ring_sample_count + _loop_offset) - (_ring_sample_count + _loop_offset - 1)
+                    / LeafBlockSamples * LeafBlockSamples;
+            return samples/8;
         }
     }
     else{
         if (block_index < block_num - 1) {
             return LeafBlockSamples / 8;
         }
-        else { // The data length of last block.
-            if (align_sample_count % LeafBlockSamples == 0)
+        else {
+            if (_ring_sample_count % LeafBlockSamples == 0)
                 return LeafBlockSamples / 8;
             else
-                return (align_sample_count % LeafBlockSamples) / 8;
+                return (_ring_sample_count % LeafBlockSamples) / 8;
         }
     }    
 }
 
 uint8_t *LogicSnapshot::get_block_buf(int block_index, int sig_index, bool &sample)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
-    return get_block_buf_unlock(block_index, sig_index, sample);
-}
-
-uint8_t *LogicSnapshot::get_block_buf_unlock(int block_index, int sig_index, bool &sample)
-{
-    int block_num = get_block_num_unlock();
-    assert(block_index < block_num);
+    assert(block_index < get_block_num());
 
     int order = get_ch_order(sig_index);
     if (order == -1) {
@@ -1491,9 +1412,8 @@ uint8_t *LogicSnapshot::get_block_buf_unlock(int block_index, int sig_index, boo
     uint8_t pos = block_index % RootScale;
     uint8_t *lbp = (uint8_t*)_ch_data[order][index].lbp[pos];
 
-    if (lbp == NULL){
+    if (lbp == NULL)
         sample = (_ch_data[order][index].first & 1ULL << pos) != 0;
-    }
 
     if (lbp != NULL && _loop_offset > 0 && block_index0 == 0)
     {
@@ -1587,35 +1507,13 @@ void LogicSnapshot::free_head_blocks(int count)
     _lst_free_block_index = count;
 }
 
-int LogicSnapshot::get_block_index_with_sample(uint64_t sample_index, uint64_t *out_offset)
+int LogicSnapshot::get_block_with_sample(uint64_t index, uint64_t *out_offset)
 {
-    std::lock_guard<std::mutex> lock(_mutex);
+    assert(out_offset);
 
-    int block_index = 0;
-    uint64_t offset = 0;
-
-    if (_is_loop && _loop_offset > 0){ 
-        uint64_t block_sample0 = get_block_size_unlock(0) * 8;
-
-        if (sample_index < block_sample0){
-            block_index = 0;
-            offset = sample_index;
-        }
-        else{
-            block_index = (sample_index - block_sample0) / LeafBlockSamples + 1;
-            offset = (sample_index - block_sample0) % LeafBlockSamples;            
-        }
-    }
-    else{
-        block_index = sample_index / LeafBlockSamples;
-        offset = sample_index % LeafBlockSamples;
-    }
-
-    if (out_offset != NULL){
-        *out_offset = offset;
-    }
-
-    return block_index;
+    int block =  index / LeafBlockSamples;
+    *out_offset = index % LeafBlockSamples;
+    return block;
 }
 
 } // namespace data

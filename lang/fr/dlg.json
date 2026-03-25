@@ -1,0 +1,830 @@
+[
+    {
+        "id": "IDS_DLG_LOG_OPTIONS",
+        "text": "Options de journal"
+    },
+    {
+        "id": "IDS_DLG_LOG_LEVEL",
+        "text": "Niveau de journalisation"
+    },
+    {
+        "id": "IDS_DLG_SAVE_FILE",
+        "text": "Enregistrer dans un fichier"
+    },
+    {
+        "id": "IDS_DLG_OPEN_FILE",
+        "text": "Ouvrir le fichier"
+    },
+    {
+        "id": "IDS_DLG_OPEN_SEESION",
+        "text": "Ouvrir une session"
+    },
+    {
+        "id": "IDS_DLG_SAVE_SEESION",
+        "text": "Enregistrer la session"
+    },
+    {
+        "id": "IDS_DLG_DOCUMENT",
+        "text": "Documentation"
+    },
+    {
+        "id": "IDS_DLG_TRIGGER_DOCK_TITLE",
+        "text": "Paramètres du Trigger"
+    },
+    {
+        "id": "IDS_DLG_PROTOCOL_DOCK_TITLE",
+        "text": "Decoders"
+    },
+    {
+        "id": "IDS_DLG_MEASURE_DOCK_TITLE",
+        "text": "Mesure"
+    },
+    {
+        "id": "IDS_DLG_SEARCH_DOCK_TITLE",
+        "text": "Recherche"
+    },
+    {
+        "id": "IDS_DLG_SAVE_AS",
+        "text": "Enregistrer sous"
+    },
+    {
+        "id": "IDS_DLG_CHECK_USB_SPEED_ERROR",
+        "text": "Brancher l'appareil actuel sur un port USB 2.0 aura un impact significatif sur ses performances.\nVeuillez le rebrancher sur un port USB 3.0."
+    },
+    {
+        "id": "IDS_DLG_CHECK_SESSION_FILE_VERSION_ERROR",
+        "text": "Ce fichier est dans un ancien format.\nIl se charge lentement.\nVous pouvez le réenregistrer après le chargement."
+    },
+    {
+        "id": "IDS_DLG_ABOUT",
+        "text": "À propos"
+    },
+    {
+        "id": "IDS_DLG_DISPLAY_OPTIONS",
+        "text": "Options d’affichage"
+    },
+    {
+        "id": "IDS_DLG_QUICK_SCROLL",
+        "text": "Défilement de la forme d'onde avec le glisser de la souris"
+    },
+    {
+        "id": "IDS_DLG_SAVE",
+        "text": "Sauvegarder"
+    },
+    {
+        "id": "IDS_DLG_RESET",
+        "text": "Réinitialiser"
+    },
+    {
+        "id": "IDS_DLG_EXIT",
+        "text": "Sortie"
+    },
+    {
+        "id": "IDS_DLG_MANUAL_CALIBRATION",
+        "text": "Calibrage manuel"
+    },
+    {
+        "id": "IDS_DLG_CHANNEL",
+        "text": "Canal"
+    },
+    {
+        "id": "IDS_DLG_SAVE_CALIBRATION_RESULTS",
+        "text": "Enregistrement des résultats d'étalonnage... Veuillez patienter un moment."
+    },
+    {
+        "id": "IDS_DLG_CANCEL",
+        "text": "Annuler"
+    },
+    {
+        "id": "IDS_DLG_RELOAD_CALIBRATION_RESULTS",
+        "text": "Rechargement des résultats d'étalonnage précédents... Veuillez patienter un moment."
+    },
+    {
+        "id": "IDS_DLG_DECODER_OPTIONS",
+        "text": "Options du Decoder"
+    },
+    {
+        "id": "IDS_DLG_CURSOR",
+        "text": "Curseur"
+    },
+    {
+        "id": "IDS_DLG_CURSOR_FOR_DECODE_START",
+        "text": "Position de départ du décodage"
+    },
+    {
+        "id": "IDS_DLG_CURSOR_FOR_DECODE_END",
+        "text": "Position finale du décodage"
+    },
+    {
+        "id": "IDS_DLG_DEVICE_OPTIONS",
+        "text": "Options du périphérique"
+    },
+    {
+        "id": "IDS_DLG_MODE",
+        "text": "Possibilités"
+    },
+    {
+        "id": "IDS_DLG_ENABLE_ALL",
+        "text": "Activer tout"
+    },
+    {
+        "id": "IDS_DLG_DISABLE_ALL",
+        "text": "Désactiver tout"
+    },
+    {
+        "id": "IDS_DLG_ENABLE",
+        "text": "Activer:"
+    },
+    {
+        "id": "IDS_DLG_AUTO_CALIBRATION",
+        "text": "Calibrage automatique"
+    },
+    {
+        "id": "IDS_DLG_CALIBRATION",
+        "text": "Étalonnage"
+    },
+    {
+        "id": "IDS_DLG_MEASUREMENTS",
+        "text": "Mesures"
+    },
+    {
+        "id": "IDS_DLG_FFT_ENABLE",
+        "text": "FFT Activer :"
+    },
+    {
+        "id": "IDS_DLG_FFT_LENGTH",
+        "text": "FFT Longueur :"
+    },
+    {
+        "id": "IDS_DLG_SAMPLE_INTERVAL",
+        "text": "Intervalle d'échantillonnage :"
+    },
+    {
+        "id": "IDS_DLG_FFT_SOURCE",
+        "text": "FFT Source :"
+    },
+    {
+        "id": "IDS_DLG_FFT_WINDOW",
+        "text": "Fenêtre FFT :"
+    },
+    {
+        "id": "IDS_DLG_DC_IGNORED",
+        "text": "DC Ignoré :"
+    },
+    {
+        "id": "IDS_DLG_Y-AXIS_MODE",
+        "text": "Mode axe Y :"
+    },
+    {
+        "id": "IDS_DLG_DBV_RANGE",
+        "text": "DBV Plage :"
+    },
+    {
+        "id": "IDS_DLG_FFT_OPTIONS",
+        "text": "FFTOptions"
+    },
+    {
+        "id": "IDS_DLG_INTERVAL_S",
+        "text": "Intervalle(s) :"
+    },
+    {
+        "id": "IDS_DLG_REPETITIVE_INTERVAL",
+        "text": "Intervalle répétitif"
+    },
+    {
+        "id": "IDS_DLG_X_AXIS",
+        "text": "Axe X"
+    },
+    {
+        "id": "IDS_DLG_Y_AXIS",
+        "text": "Axe Y"
+    },
+    {
+        "id": "IDS_DLG_LISSAJOUS_OPTIONS",
+        "text": "LissajousOptions"
+    },
+    {
+        "id": "IDS_DLG_ADD",
+        "text": "Ajouter"
+    },
+    {
+        "id": "IDS_DLG_SUBSTRACT",
+        "text": "Soustraire"
+    },
+    {
+        "id": "IDS_DLG_MULTIPLY",
+        "text": "Multiplier"
+    },
+    {
+        "id": "IDS_DLG_DIVIDE",
+        "text": "Diviser"
+    },
+    {
+        "id": "IDS_DLG_MATH_TYPE",
+        "text": "Type mathématique"
+    },
+    {
+        "id": "IDS_DLG_1ST_SOURCE",
+        "text": "1ère Source"
+    },
+    {
+        "id": "IDS_DLG_2ST_SOURCE",
+        "text": "2ème source"
+    },
+    {
+        "id": "IDS_DLG_MATH_OPTIONS",
+        "text": "Options mathématiques"
+    },
+    {
+        "id": "IDS_DLG_EXPORT_FORMAT",
+        "text": "Format d'exportation :"
+    },
+    {
+        "id": "IDS_DLG_PROTOCOL_EXPORT",
+        "text": "Exportation de protocole"
+    },
+    {
+        "id": "IDS_DLG_EXPORT_DATA",
+        "text": "Exporter des données :"
+    },
+    {
+        "id": "IDS_DLG_EXPORT_PROTOCOL_LIST_RESULT",
+        "text": "Exportation des résultats de décodage... Veuillez patienter un instant."
+    },
+    {
+        "id": "IDS_DLG_FIT_TO_WINDOW",
+        "text": "Adaptation de la taille de la fenêtre"
+    },
+    {
+        "id": "IDS_DLG_FIXED",
+        "text": "Fixé"
+    },
+    {
+        "id": "IDS_DLG_MAP_ZOOM",
+        "text": "Zoom de saut :"
+    },
+    {
+        "id": "IDS_DLG_DECODED_PROTOCOLS",
+        "text": "Protocoles décodés :"
+    },
+    {
+        "id": "IDS_DLG_PROTOCOL_LIST_VIEWER",
+        "text": "Résultats de décodage"
+    },
+    {
+        "id": "IDS_DLG_REGION",
+        "text": "Région"
+    },
+    {
+        "id": "IDS_DLG_SEARCH_LABEL",
+        "text": "X : Je m'en fiche\n0 : niveau bas\n1 : Haut niveau\nR : Front montant\nF : Front descendant\nC : Front montant/descendant"
+    },
+    {
+        "id": "IDS_DLG_SEARCH_OPTIONS",
+        "text": "Options de recherche"
+    },
+    {
+        "id": "IDS_DLG_SAVING",
+        "text": "Économie..."
+    },
+    {
+        "id": "IDS_DLG_ORIGINAL_DATA",
+        "text": "Données originales"
+    },
+    {
+        "id": "IDS_DLG_COMPRESSED_DATA",
+        "text": "Données compressées"
+    },
+    {
+        "id": "IDS_DLG_EXPORT",
+        "text": "Exporter"
+    },
+    {
+        "id": "IDS_DLG_EXPORTING",
+        "text": "Exportation..."
+    },
+    {
+        "id": "IDS_DLG_DONT_CONNECT_PROBES",
+        "text": "Ne connectez aucune sonde !"
+    },
+    {
+        "id": "IDS_DLG_LOAD_CURRENT_SETTING",
+        "text": "Chargement des paramètres actuels... Veuillez patienter un instant."
+    },
+    {
+        "id": "IDS_DLG_WAITING",
+        "text": "En attendant"
+    },
+    {
+        "id": "IDS_DLG_FINISHED",
+        "text": "Fini!"
+    },
+    {
+        "id": "IDS_DLG_US",
+        "text": "nous"
+    },
+    {
+        "id": "IDS_DLG_MS",
+        "text": "MS"
+    },
+    {
+        "id": "IDS_DLG_S",
+        "text": "S"
+    },
+    {
+        "id": "IDS_DLG_TRIGGER_POSITION",
+        "text": "Position de déclenchement :"
+    },
+    {
+        "id": "IDS_DLG_HOLD_OFF_TIME",
+        "text": "Temps d'attente :"
+    },
+    {
+        "id": "IDS_DLG_NOISE_SENSITIVITY",
+        "text": "Sensibilité Trigger :"
+    },
+    {
+        "id": "IDS_DLG_TRIGGER_SOURCES",
+        "text": "Sources de déclenchement :"
+    },
+    {
+        "id": "IDS_DLG_TRIGGER_TYPES",
+        "text": "Types Trigger :"
+    },
+    {
+        "id": "IDS_DLG_RISING_EDGE",
+        "text": "Bord montant"
+    },
+    {
+        "id": "IDS_DLG_FALLING_EDGE",
+        "text": "Bord descendant"
+    },
+    {
+        "id": "IDS_DLG_AUTO",
+        "text": "Auto"
+    },
+    {
+        "id": "IDS_DLG_CHANNEL_0",
+        "text": "Canal 0"
+    },
+    {
+        "id": "IDS_DLG_CHANNEL_1",
+        "text": "Canal 1"
+    },
+    {
+        "id": "IDS_DLG_CHANNEL_0_AND_1",
+        "text": "Canal 0 && 1"
+    },
+    {
+        "id": "IDS_DLG_CHANNEL_0_OR_1",
+        "text": "Canal 0 | 1"
+    },
+    {
+        "id": "IDS_DLG_KEY_DECODER_SEARCH",
+        "text": "Recherche de Decoder..."
+    },
+    {
+        "id": "IDS_DLG_TIME_SAMPLES",
+        "text": "Temps/échantillons"
+    },
+    {
+        "id": "IDS_DLG_MOUSE_MEASUREMENT",
+        "text": "Mesure de la souris"
+    },
+    {
+        "id": "IDS_DLG_ENABLE_FLOATING_MEASUREMENT",
+        "text": "Activer la mesure flottante"
+    },
+    {
+        "id": "IDS_DLG_CURSOR_DISTANCE",
+        "text": "Distance du curseur"
+    },
+    {
+        "id": "IDS_DLG_EDGES",
+        "text": "Bords"
+    },
+    {
+        "id": "IDS_DLG_CURSORS",
+        "text": "Curseurs"
+    },
+    {
+        "id": "IDS_DLG_RIS_OR_FAL_EDGE",
+        "text": "Montant/descendant/bords"
+    },
+    {
+        "id": "IDS_DLG_W",
+        "text": "W :"
+    },
+    {
+        "id": "IDS_DLG_P",
+        "text": "P :"
+    },
+    {
+        "id": "IDS_DLG_F",
+        "text": "F :"
+    },
+    {
+        "id": "IDS_DLG_D",
+        "text": "D:"
+    },
+    {
+        "id": "IDS_DLG_SEARCH",
+        "text": "recherche"
+    },
+    {
+        "id": "IDS_DLG_MATCHING_ITEMS",
+        "text": "Articles correspondants :"
+    },
+    {
+        "id": "IDS_DLG_OUT_OF_MEMORY",
+        "text": "Mémoire insuffisante"
+    },
+    {
+        "id": "IDS_DLG_SEARCHING",
+        "text": "Recherche..."
+    },
+    {
+        "id": "IDS_DLG_SEARCH_PREVIOUS",
+        "text": "Rechercher Précédent..."
+    },
+    {
+        "id": "IDS_DLG_SEARCH_NEXT",
+        "text": "Rechercher suivant..."
+    },
+    {
+        "id": "IDS_DLG_SIMPLE_TRIGGER",
+        "text": "Trigger simple"
+    },
+    {
+        "id": "IDS_DLG_ADVANCED_TRIGGER",
+        "text": "Advanced Trigger"
+    },
+    {
+        "id": "IDS_DLG_TRIGGER_POSITION",
+        "text": "Position de déclenchement :"
+    },
+    {
+        "id": "IDS_DLG_TOTAL_TRIGGER_STAGES",
+        "text": "Nombre total d'étapes de déclenchement :"
+    },
+    {
+        "id": "IDS_DLG_START_FLAG",
+        "text": "Drapeau de départ :"
+    },
+    {
+        "id": "IDS_DLG_STOP_FLAG",
+        "text": "Drapeau d'arrêt :"
+    },
+    {
+        "id": "IDS_DLG_CLOCK_FLAG",
+        "text": "Drapeau d'horloge :"
+    },
+    {
+        "id": "IDS_DLG_DATA_CHANNEL",
+        "text": "Canal de données :"
+    },
+    {
+        "id": "IDS_DLG_DATA_VALUE",
+        "text": "Valeur des données :"
+    },
+    {
+        "id": "IDS_DLG_SERIAL_TRIGGER",
+        "text": "Trigger série"
+    },
+    {
+        "id": "IDS_DLG_STAGE_TRIGGER",
+        "text": "Stage Trigger"
+    },
+    {
+        "id": "IDS_DLG_SERIAL_NOTE_LABEL",
+        "text": "X : Je m'en fiche\n0 : niveau bas\n1 : Haut niveau\nR : Front montant\nF : Front descendant\nC : Front montant/descendant"
+    },
+    {
+        "id": "IDS_DLG_DATA_BITS",
+        "text": "Bits de données"
+    },
+    {
+        "id": "IDS_DLG_INV",
+        "text": "Inv."
+    },
+    {
+        "id": "IDS_DLG_COUNTER",
+        "text": "Comptoir"
+    },
+    {
+        "id": "IDS_DLG_CONTIGUOUS",
+        "text": "Contigu"
+    },
+    {
+        "id": "IDS_DLG_STAGE",
+        "text": "Scène"
+    },
+    {
+        "id": "IDS_DLG_OR",
+        "text": "Ou"
+    },
+    {
+        "id": "IDS_DLG_AND",
+        "text": "Et"
+    },
+    {
+        "id": "IDS_DLG_HZ",
+        "text": "Hz"
+    },
+    {
+        "id": "IDS_DLG_UNSHOWN",
+        "text": "Non affiché"
+    },
+    {
+        "id": "ZOOM_IN_FOR_DETAILS",
+        "text": "Zoomez pour plus de détails"
+    },
+    {
+        "id": "IDS_DLG_DECODETRACE_ERROR1",
+        "text": "Erreur:"
+    },
+    {
+        "id": "IDS_DLG_DECODETRACE_ERROR2",
+        "text": "Erreur: ..."
+    },
+    {
+        "id": "IDS_DLG_ADD_GROUP",
+        "text": "Ajouter un groupe"
+    },
+    {
+        "id": "IDS_DLG_DEL_GROUP",
+        "text": "Groupe Del"
+    },
+    {
+        "id": "IDS_DLG_SET_CHANNEL_COLOUR",
+        "text": "Définir la couleur du canal"
+    },
+    {
+        "id": "IDS_DLG_LISSAJOUS_FIGURE",
+        "text": "Lissajous Chiffre"
+    },
+    {
+        "id": "IDS_DLG_DATA_SOURCE_ERROR",
+        "text": "Erreur de source de données."
+    },
+    {
+        "id": "IDS_DLG_ADD_X_CURSOR",
+        "text": "Ajouter un curseur X"
+    },
+    {
+        "id": "IDS_DLG_ADD_Y_CURSOR",
+        "text": "Ajouter un curseur Y"
+    },
+    {
+        "id": "IDS_DLG_AUTO_ROLL",
+        "text": "Auto (rouleau)"
+    },
+    {
+        "id": "IDS_DLG_WAITING_TRIG",
+        "text": "Déclenchement en attente"
+    },
+    {
+        "id": "IDS_DLG_TRIG_D",
+        "text": "Déclenché"
+    },
+    {
+        "id": "IDS_DLG_TRIGGERED",
+        "text": "Déclenché!"
+    },
+    {
+        "id": "IDS_DLG_CAPTURED",
+        "text": "% capturé"
+    },
+    {
+        "id": "IDS_DLG_WAITING_FOR_TRIGGER",
+        "text": "En attente de Trigger !"
+    },
+    {
+        "id": "IDS_DLG_RISING",
+        "text": "Soulèvement:"
+    },
+    {
+        "id": "IDS_DLG_FALLING",
+        "text": "Chute:"
+    },
+    {
+        "id": "IDS_DLG_Edges_1",
+        "text": "Bords :"
+    },
+    {
+        "id": "IDS_DLG_WIDTH",
+        "text": "Largeur:"
+    },
+    {
+        "id": "IDS_DLG_PERIOD",
+        "text": "Période:"
+    },
+    {
+        "id": "IDS_DLG_FREQUENCY",
+        "text": "Fréquence:"
+    },
+    {
+        "id": "IDS_DLG_DUTY_CYCLE",
+        "text": "Cycle de service :"
+    },
+    {
+        "id": "IDS_DLG_MEASURE",
+        "text": "Mesure"
+    },
+    {
+        "id": "IDS_DLG_TRIGGER_TIME",
+        "text": "Temps Trigger :"
+    },
+    {
+        "id": "IDS_DLG_SAMPLES_CAPTURED",
+        "text": "Échantillons capturés !"
+    },
+    {
+        "id": "IDS_DLG_FILE_THRESHOLD",
+        "text": "Seuil:"
+    },
+    {
+        "id": "IDS_DLG_VIEW_CAPTURE",
+        "text": "Capturer"
+    },
+    {
+        "id": "IDS_DLG_CHAN_NUM_ERR2",
+        "text": "Nécessite les données de deux canaux."
+    },
+    {
+        "id": "IDS_DLG_PATH_NAME",
+        "text": "chemin"
+    },
+    {
+        "id": "IDS_DLG_DECODER_IF_TRANS",
+        "text": "Traduire les noms de paramètres"
+    },
+    {
+        "id": "IDS_DLG_LOG_PATH",
+        "text": "Chemin du fichier"
+    },
+    {
+        "id": "IDS_DLG_OPEN",
+        "text": "Ouvrir"
+    },
+    {
+        "id": "IDS_DLG_CLEARE",
+        "text": "Clair"
+    },
+    {
+        "id": "IDS_DLG_APPEND_MODE",
+        "text": "Mode Ajouter"
+    },
+    {
+        "id": "IDS_DLG_TRIG_DISPLAY_MIDDLE",
+        "text": "Affichage de la position Trig au milieu"
+    },
+    {
+        "id": "IDS_DLG_DISPLAY_PROFILE_IN_BAR",
+        "text": "Afficher le profil dans la barre de titre"
+    },
+    {
+        "id": "IDS_DLG_SERIAL_HEX",
+        "text": "Hex :"
+    },
+    {
+        "id": "IDS_DLG_SERIAL_INPUT_AS_HEX",
+        "text": "Entrée au format hexadécimal"
+    },
+    {
+        "id": "IDS_DLG_USE_ABORT_DATA_REPEAT",
+        "text": "Mettre à jour les dernières données pour l'arrêt du mode répétition"
+    },
+    {
+        "id": "IDS_DLG_FONT_SIZE",
+        "text": "Taille de la police"
+    },
+    {
+        "id": "IDS_DLG_GROUP_LOGIC",
+        "text": "Analyseur logique"
+    },
+    {
+        "id": "IDS_DLG_GROUP_DSO",
+        "text": "Oscilloscope"
+    },
+    {
+        "id": "IDS_DLG_GROUP_UI",
+        "text": "Interface utilisateur"
+    },
+    {
+        "id": "IDS_DLG_ABORT",
+        "text": "Avorter"
+    },
+    {
+        "id": "IDS_DLG_AUTO_SCROLL_LATEAST_DATA",
+        "text": "Défilement automatique vers les dernières données"
+    },
+    {
+        "id": "IDS_DLG_DATA_OUT_OFF_RANGE",
+        "text": "Données hors de portée"
+    },
+    {
+        "id": "IDS_DLG_START_CURSOR",
+        "text": "Commencer"
+    },
+    {
+        "id": "IDS_DLG_END_CURSOR",
+        "text": "Fin"
+    },
+    {
+        "id": "IDS_DSO_CTR_EN",
+        "text": "FR"
+    },
+    {
+        "id": "IDS_DSO_CTR_DIS",
+        "text": "DIS"
+    },
+    {
+        "id": "IDS_DSO_CTR_GND",
+        "text": "GND"
+    },
+    {
+        "id": "IDS_DSO_CTR_DC",
+        "text": "DC"
+    },
+    {
+        "id": "IDS_DSO_CTR_AC",
+        "text": "CA"
+    },
+    {
+        "id": "IDS_DSO_CTR_AUTO",
+        "text": "AUTO"
+    },
+    {
+        "id": "IDS_CALIB_VGAIN",
+        "text": "VGAIN"
+    },
+    {
+        "id": "IDS_CALIB_VOFF",
+        "text": "VOFF"
+    },
+    {
+        "id": "IDS_CALIB_VCOMB",
+        "text": "VCOMB"
+    },
+    {
+        "id": "IDS_FFT_WINDOW_RECTANGLE",
+        "text": "Rectangle"
+    },
+    {
+        "id": "IDS_FFT_WINDOW_HANN",
+        "text": "Hann"
+    },
+    {
+        "id": "IDS_FFT_WINDOW_HAMMING",
+        "text": "Hamming"
+    },
+    {
+        "id": "IDS_FFT_WINDOW_BLACKMAN",
+        "text": "Blackman"
+    },
+    {
+        "id": "IDS_FFT_WINDOW_FLATTOP",
+        "text": "Flat Top"
+    },
+    {
+        "id": "IDS_FFT_MODE_LINEARRSM",
+        "text": "Linéaire RMS"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_WEBSITE",
+        "text": "Site web"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_GITHUB",
+        "text": "GitHub"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_COPYRIGHT",
+        "text": "Droit d'auteur"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_COPYRIGHT_TEXT",
+        "text": "© DreamSourceLab. Tous droits réservés."
+    },
+    {
+        "id": "IDS_DLG_ABOUT_SPECIAL_THANKS",
+        "text": "Remerciements particuliers"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_KICKSTARTER",
+        "text": "À tous les contributeurs sur Kickstarter"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_SIGROK",
+        "text": "À tous les membres du projet Sigrok"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_OPEN_SOURCE",
+        "text": "À tous les contributeurs des projets open source"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_CHANGELOGS",
+        "text": "Changelogs"
+    }
+]

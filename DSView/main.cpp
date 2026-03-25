@@ -27,6 +27,7 @@
 #include <QStyle> 
 #include <QGuiApplication>
 #include <QScreen>
+#include <QByteArray>
 #include "dsapplication.h"
 #include "mystyle.h" 
 #include "pv/mainframe.h"
@@ -55,6 +56,23 @@ void usage()
 		"  -s, --storelog                  Save log to locale file\n"
 		"  -h, -?, --help                  Show help option\n"
 		"\n", DS_BIN_NAME, DS_DESCRIPTION);
+}
+
+static void configure_linux_platform_theme()
+{
+#if defined(Q_OS_LINUX)
+    if (qEnvironmentVariableIsSet("QT_QPA_PLATFORMTHEME")) {
+        return;
+    }
+
+    const QByteArray sessionType = qgetenv("XDG_SESSION_TYPE").trimmed().toLower();
+    const QByteArray desktop = qgetenv("XDG_CURRENT_DESKTOP").trimmed().toLower();
+
+    if (sessionType == "wayland" &&
+        (desktop.contains("gnome") || desktop.contains("ubuntu"))) {
+        qputenv("QT_QPA_PLATFORMTHEME", QByteArrayLiteral("gtk3"));
+    }
+#endif
 }
 
 int main(int argc, char *argv[])
@@ -94,8 +112,10 @@ int main(int argc, char *argv[])
     #else
         int argcFinal = argc;
         char** argvFinal = argv;
-    #endif 
+	#endif 
  
+    configure_linux_platform_theme();
+
 	//----------------------command param parse
 	while (1) {
 		static const struct option long_options[] = {
@@ -212,6 +232,7 @@ bool bHighScale = true;
 	//----------------------run
 	dsv_info("----------------- version: %s-----------------", DS_VERSION_STRING);
 	dsv_info("Qt:%s", QT_VERSION_STR);
+    dsv_info("Qt platform:%s", QGuiApplication::platformName().toLocal8Bit().constData());
 
 	QDateTime dateTime = QDateTime::currentDateTime();
 	std::string strTime = dateTime .toString("yyyy-MM-dd hh:mm:ss").toStdString();

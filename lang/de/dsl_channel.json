@@ -1,0 +1,118 @@
+[
+    {
+        "id": "Use 16 Channels (Max 20MHz)",
+        "text": "Verwenden Sie 16 Kanäle (max. 20MHz)"
+    },
+    {
+        "id": "Use 12 Channels (Max 25MHz)",
+        "text": "Verwenden Sie 12 Kanäle (max. 25MHz)"
+    },
+    {
+        "id": "Use 6 Channels (Max 50MHz)",
+        "text": "Verwenden Sie 6 Kanäle (max. 50MHz)"
+    },
+    {
+        "id": "Use 3 Channels (Max 100MHz)",
+        "text": "Verwenden Sie 3 Kanäle (max. 100MHz)"
+    },
+    {
+        "id": "Use 16 Channels (Max 20MHz)",
+        "text": "Verwenden Sie 16 Kanäle (max. 20MHz)"
+    },
+    {
+        "id": "Use 12 Channels (Max 25MHz)",
+        "text": "Verwenden Sie 12 Kanäle (max. 25MHz)"
+    },
+    {
+        "id": "Use 6 Channels (Max 50MHz)",
+        "text": "Verwenden Sie 6 Kanäle (max. 50MHz)"
+    },
+    {
+        "id": "Use 3 Channels (Max 100MHz)",
+        "text": "Verwenden Sie 3 Kanäle (max. 100MHz)"
+    },
+    {
+        "id": "Use 32 Channels (Max 10MHz)",
+        "text": "Verwenden Sie 32 Kanäle (max. 10MHz)"
+    },
+    {
+        "id": "Use 16 Channels (Max 20MHz)",
+        "text": "Verwenden Sie 16 Kanäle (max. 20MHz)"
+    },
+    {
+        "id": "Use 12 Channels (Max 25MHz)",
+        "text": "Verwenden Sie 12 Kanäle (max. 25MHz)"
+    },
+    {
+        "id": "Use 6 Channels (Max 50MHz)",
+        "text": "Verwenden Sie 6 Kanäle (max. 50MHz)"
+    },
+    {
+        "id": "Use 3 Channels (Max 100MHz)",
+        "text": "Verwenden Sie 3 Kanäle (max. 100MHz)"
+    },
+    {
+        "id": "Use 32 Channels (Max 50MHz)",
+        "text": "Verwenden Sie 32 Kanäle (max. 50MHz)"
+    },
+    {
+        "id": "Use 30 Channels (Max 100MHz)",
+        "text": "Verwenden Sie 30 Kanäle (max. 100MHz)"
+    },
+    {
+        "id": "Use 12 Channels (Max 250MHz)",
+        "text": "Verwenden Sie 12 Kanäle (max. 250MHz)"
+    },
+    {
+        "id": "Use 16 Channels (Max 125MHz)",
+        "text": "Verwenden Sie 16 Kanäle (max. 125MHz)"
+    },
+    {
+        "id": "Use 12 Channels (Max 250MHz)",
+        "text": "Verwenden Sie 12 Kanäle (max. 250MHz)"
+    },
+    {
+        "id": "Use 6 Channels (Max 500MHz)",
+        "text": "Verwenden Sie 6 Kanäle (max. 500MHz)"
+    },
+    {
+        "id": "Use 3 Channels (Max 1GHz)",
+        "text": "Verwenden Sie 3 Kanäle (max. 1GHz)"
+    },
+    {
+        "id": "Use Channels 0~15 (Max 100MHz)",
+        "text": "Verwenden Sie die Kanäle 0–15 (max. 100MHz)"
+    },
+    {
+        "id": "Use Channels 0~7 (Max 200MHz)",
+        "text": "Verwenden Sie die Kanäle 0–7 (max. 200MHz)"
+    },
+    {
+        "id": "Use Channels 0~3 (Max 400MHz)",
+        "text": "Verwenden Sie die Kanäle 0–3 (max. 400MHz)"
+    },
+    {
+        "id": "Use Channels 0~31 (Max 250MHz)",
+        "text": "Verwenden Sie die Kanäle 0–31 (max. 250MHz)"
+    },
+    {
+        "id": "Use Channels 0~15 (Max 500MHz)",
+        "text": "Verwenden Sie die Kanäle 0–15 (max. 500MHz)"
+    },
+    {
+        "id": "Use Channels 0~7 (Max 1GHz)",
+        "text": "Verwenden Sie die Kanäle 0–7 (max. 1GHz)"
+    },
+    {
+        "id": "Use Channels 0~1 (Max 10MHz)",
+        "text": "Verwenden Sie die Kanäle 0–1 (max. 10MHz)"
+    },
+    {
+        "id": "Use Channels 0~1 (Max 200MHz)",
+        "text": "Verwenden Sie die Kanäle 0–1 (max. 200MHz)"
+    },
+    {
+        "id": "Use Channels 0~1 (Max 1GHz)",
+        "text": "Verwenden Sie die Kanäle 0–1 (max. 1GHz)"
+    }
+]

@@ -22,11 +22,10 @@
 #include "keywordlineedit.h"
 #include <QHBoxLayout>
 #include <QTimer>
-#include <QSpinBox>
 #include "../config/appconfig.h"
+#include "../ui/fn.h"
 #include "../ui/langresource.h"
 #include "../log.h"
-#include "../dsvdef.h"
 
 namespace{
     QTimer *move_timer = NULL;
@@ -122,20 +121,7 @@ void KeyLineEdit::wheelEvent(QWheelEvent *event)
             int v = new_text.toInt();
             int old_v = v;
 
-            int delta = 0;
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-            int anglex = event->angleDelta().x();
-            int angley = event->angleDelta().y();
-
-            if (anglex == 0 || ABS_VAL(angley) >= ABS_VAL(anglex)){
-                delta = angley;
-            }
-#else
-            delta = event->delta();
-#endif
-
-            if (delta > 0){
+            if (event->delta() > 0){
                 v++;
             }
             else{
@@ -207,7 +193,8 @@ void KeyLineEdit::set_number_mode(bool isNumberMode)
 PopupLineEditInput::PopupLineEditInput(QWidget *parent)
     :QDialog(parent)
 {  
-    setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
+    setModal(false);
+    setWindowFlags(ui::stable_window_flags(Qt::Popup | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint));
     _line = NULL;
  
     QHBoxLayout *lay = new QHBoxLayout();
@@ -227,7 +214,7 @@ PopupLineEditInput::PopupLineEditInput(QWidget *parent)
 
 void PopupLineEditInput::changeEvent(QEvent *event)
 {
-    if (event->type() == QEvent::ActivationChange){
+    if (!ui::is_wayland_platform() && event->type() == QEvent::ActivationChange){
         if (this->isActiveWindow() == false){
             InputRelease();
             return;
@@ -274,16 +261,11 @@ void PopupLineEditInput::Popup(QWidget *editline)
     _textInput->setFixedSize(editline->size());
     this->setFixedSize(editline->size());
 
-    QPoint pt = mapToGlobal(editline->rect().bottomLeft());    
-
     QPoint p1 = editline->pos();
     QPoint p2 = editline->mapToGlobal(p1);
     int x = p2.x() - p1.x();
     int y = p2.y() - p1.y();
     this->move(x, y);
-
-    _textInput->setFocus(); 
-    _textInput->setCursorPosition(_textInput->text().length());
 
     if (move_timer != NULL){
         move_timer->stop();
@@ -297,6 +279,10 @@ void PopupLineEditInput::Popup(QWidget *editline)
     move_timer->start();
 
     this->show();
+    this->raise();
+    this->activateWindow();
+    _textInput->setFocus(Qt::PopupFocusReason);
+    _textInput->setCursorPosition(_textInput->text().length());
 }
 
 //---------PopupLineEdit

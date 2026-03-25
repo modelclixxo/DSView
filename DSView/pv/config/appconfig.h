@@ -29,6 +29,51 @@
 
 #define LAN_CN  25
 #define LAN_EN  31
+#define LAN_DE  32
+#define LAN_FR  33
+#define LAN_IT  34
+
+inline bool IsSupportedLanguage(int language)
+{
+    return language == LAN_CN || language == LAN_EN ||
+           language == LAN_DE || language == LAN_FR ||
+           language == LAN_IT;
+}
+
+inline const char* GetLanguageFolderKey(int language)
+{
+    switch (language) {
+    case LAN_CN:
+        return "cn";
+    case LAN_EN:
+        return "en";
+    case LAN_DE:
+        return "de";
+    case LAN_FR:
+        return "fr";
+    case LAN_IT:
+        return "it";
+    default:
+        return "en";
+    }
+}
+
+inline QString GetLanguageQtLocale(int language)
+{
+    switch (language) {
+    case LAN_CN:
+        return QStringLiteral("zh_CN");
+    case LAN_DE:
+        return QStringLiteral("de");
+    case LAN_FR:
+        return QStringLiteral("fr");
+    case LAN_IT:
+        return QStringLiteral("it");
+    case LAN_EN:
+    default:
+        return QStringLiteral("en");
+    }
+}
 
 #define THEME_STYLE_DARK   "dark"
 #define THEME_STYLE_LIGHT  "light"

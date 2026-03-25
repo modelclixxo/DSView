@@ -53,14 +53,12 @@ DSDialog::DSDialog(QWidget *parent, bool hasClose):
 
 DSDialog::DSDialog(QWidget *parent, bool hasClose, bool bBaseButton) :
 #ifdef Q_OS_LINUX
-    QDialog(NULL),  //enable the popup dialog draged.
+    QDialog(ui::use_native_window_frame() ? parent : NULL),  // keep parented dialogs on Wayland for stable focus/transients.
 #else
     QDialog(parent),
 #endif
     m_bBaseButton(bBaseButton)
 {
-    (void)parent;
-
     _base_layout = NULL;
     _main_layout = NULL;
     _main_widget = NULL;
@@ -72,8 +70,10 @@ DSDialog::DSDialog(QWidget *parent, bool hasClose, bool bBaseButton) :
     m_callback = NULL; 
     _clickYes = false;
     
-    setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
-    setAttribute(Qt::WA_TranslucentBackground);
+    setWindowFlags(ui::stable_window_flags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint));
+    if (ui::allow_translucent_windows()){
+        setAttribute(Qt::WA_TranslucentBackground);
+    }
 
     build_base(hasClose); 
 }
@@ -114,6 +114,7 @@ void DSDialog::reject()
   
 void DSDialog::setTitle(QString title)
 {
+    QDialog::setWindowTitle(title);
     if (_titlebar){
          _titlebar->setTitle(title);
     } 
@@ -145,6 +146,11 @@ int DSDialog::exec()
  void DSDialog::SetTitleSpace(int h)
  {
      if (_titleSpaceLine != NULL){ 
+         if (ui::use_native_window_frame()){
+             _titleSpaceLine->setVisible(false);
+             return;
+         }
+
          if (h > 0){
              _titleSpaceLine->setFixedHeight(h);
              _titleSpaceLine->setVisible(true);
@@ -157,23 +163,29 @@ int DSDialog::exec()
 
 void DSDialog::build_base(bool hasClose)
 {    
+    const bool useNativeWindowFrame = ui::use_native_window_frame();
+
     _main_widget = new QWidget(this);
     _main_layout = new QVBoxLayout(_main_widget);
     _main_widget->setLayout(_main_layout);
 
-    _shadow  = new Shadow(this);
-    _shadow->setBlurRadius(10.0);
-    _shadow->setDistance(3.0);
-    _shadow->setColor(QColor(0, 0, 0, 80));
     _main_widget->setAutoFillBackground(true); 
-    this->setGraphicsEffect(_shadow);
+    if (!useNativeWindowFrame) {
+        _shadow  = new Shadow(this);
+        _shadow->setBlurRadius(10.0);
+        _shadow->setDistance(3.0);
+        _shadow->setColor(QColor(0, 0, 0, 80));
+        this->setGraphicsEffect(_shadow);
+    }
 
     _titlebar = new toolbars::TitleBar(false, this, NULL,hasClose);
     _main_layout->addWidget(_titlebar);
+    _titlebar->setVisible(!useNativeWindowFrame);
 
     _titleSpaceLine = new QWidget(this);
     _titleSpaceLine->setFixedHeight(15);
     _main_layout->addWidget(_titleSpaceLine);
+    _titleSpaceLine->setVisible(!useNativeWindowFrame);
 
     _base_layout = new QVBoxLayout(this);   
     _base_layout->addWidget(_main_widget);

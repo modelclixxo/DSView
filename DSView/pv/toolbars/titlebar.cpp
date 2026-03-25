@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <QTimer>
 #include <QGuiApplication>
+#include <QWindow>
 
 #include "../config/appconfig.h"
 #include "../appcontrol.h"
@@ -218,6 +219,19 @@ void TitleBar::mousePressEvent(QMouseEvent* event)
 
     if(event->button() == Qt::LeftButton && ableMove && _is_able_drag) 
     {
+        // On Wayland the compositor owns window movement. Use the platform API
+        // instead of manually moving the top-level widget, so dragging works
+        // with the custom (frameless) title bar.
+        const QString platform = QGuiApplication::platformName();
+        const bool useSystemMove = platform.contains(QStringLiteral("wayland"), Qt::CaseInsensitive);
+        if (useSystemMove) {
+            if (QWindow *win = _parent ? _parent->windowHandle() : window()->windowHandle()) {
+                win->startSystemMove();
+                event->accept();
+                return;
+            }
+        }
+
         int x = event->pos().x();
         int y = event->pos().y(); 
         
@@ -312,6 +326,10 @@ void TitleBar::mouseReleaseEvent(QMouseEvent* event)
     }
     _moving = false;
     _is_draging = false;
+    unsetCursor();
+    if (_parent) {
+        _parent->unsetCursor();
+    }
     QWidget::mouseReleaseEvent(event);
 }
 

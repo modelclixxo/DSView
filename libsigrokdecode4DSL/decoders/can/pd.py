@@ -21,7 +21,6 @@
 
 ##
 ##  2024/3/28 DreamSourceLab : Display data when zooming out 
-##  2024/6/18 DreamSourceLab : put error when stuff error
 ##
 
 from common.srdhelper import bitpack_msb
@@ -155,8 +154,6 @@ class Decoder(srd.Decoder):
         if len(self.bits) > self.last_databit + 17:
             return False
         last_6_bits = self.rawbits[-6:]
-        if last_6_bits in ([1, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]):
-            self.putx([16, ['Stuff Error' ,'Error','E']])
         if last_6_bits not in ([0, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 0]):
             return False
 

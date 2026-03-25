@@ -38,13 +38,13 @@
 #include "../view/decodetrace.h"
 #include "../data/decodermodel.h"
 #include "../config/appconfig.h"
+#include "../ui/fn.h"
 #include "../dsvdef.h"
 #include "../utility/encoding.h"
 #include "../utility/path.h"
 #include "../log.h"
 #include "../ui/langresource.h"
 #include "../ui/msgbox.h"
- #include "../utility/formatting.h"
 
 #define EXPORT_DEC_ROW_COUNT_MAX 20
 
@@ -60,8 +60,6 @@ ProtocolExp::ProtocolExp(QWidget *parent, SigSession *session) :
         Qt::Horizontal, this),
     _export_cancel(false)
 {
-    _bAbleClose = false;
-
     _format_combobox = new DsComboBox(this);
     //tr
     _format_combobox->addItem("Comma-Separated Values (*.csv)");
@@ -105,51 +103,27 @@ ProtocolExp::ProtocolExp(QWidget *parent, SigSession *session) :
     layout()->addLayout(_layout);
     setTitle(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_PROTOCOL_EXPORT), "Protocol Export"));
 
-    connect(&_button_box, SIGNAL(accepted()), this, SLOT(onAccept()));
-    connect(&_button_box, SIGNAL(rejected()), this, SLOT(onReject()));
-    connect(_session->device_event_object(), SIGNAL(device_updated()), this, SLOT(onReject()));
-
-    connect(&m_timer, &QTimer::timeout, this, &ProtocolExp::on_timeout);
-    m_timer.setInterval(200);
+    connect(&_button_box, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(&_button_box, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(_session->device_event_object(), SIGNAL(device_updated()), this, SLOT(reject()));
 
 }
 
-void ProtocolExp::on_timeout()
-{
-    if (_bAbleClose){
-        closeSelf();
-    }
-}
-
-void ProtocolExp::onReject()
-{
-    using namespace Qt;
-
-    QDialog::reject();
-    this->deleteLater();
-}
-
-void ProtocolExp::cancel_export()
-{
-    _export_cancel = true;
-}
-
-void ProtocolExp::closeSelf()
-{
-    close();
-    this->deleteLater();
-}
-
-void ProtocolExp::onAccept()
-{
-    if (_session->have_decoded_result() == false 
-            || _row_sel_list.empty())
+void ProtocolExp::accept()
+{   
+    if (_session->have_decoded_result() == false)
     {
         QString errMsg = L_S(STR_PAGE_MSG, S_ID(IDS_MSG_NO_DECODED_RESULT), "No data to export");
         MsgBox::Show(errMsg);
         return;
     }
- 
+
+    QDialog::accept();
+
+    if (_row_sel_list.empty()){
+        return;
+    }
+
     QList<QString> supportedFormats;
     for (int i = _format_combobox->count() - 1; i >= 0; i--)
     {
@@ -167,9 +141,7 @@ void ProtocolExp::onAccept()
     AppConfig &app = AppConfig::Instance();
     QString default_filter = _format_combobox->currentText();
     QString default_name = app.userHistory.protocolExportPath + "/" + "decoder-";
-
-    QString dateTimeString = Formatting::DateTimeToString(_session->get_session_time(), TimeStrigFormatType::TIME_STR_FORMAT_SHORT2);
-    default_name += "-" + dateTimeString;
+    default_name += _session->get_session_time().toString("-yyMMdd-hhmmss");
 
     QString file_name = QFileDialog::getSaveFileName(
         this,
@@ -199,7 +171,6 @@ void ProtocolExp::onAccept()
     QFuture<void> future;
     future = QtConcurrent::run([&]{
                     save_proc();
-                    _bAbleClose = true;
                });
 
     Qt::WindowFlags flags = Qt::CustomizeWindowHint;
@@ -207,8 +178,8 @@ void ProtocolExp::onAccept()
                         "Export Protocol List Result... It can take a while."),
                         L_S(STR_PAGE_DLG, S_ID(IDS_DLG_CANCEL), "Cancel"), 0, 100, this, flags);
     dlg.setWindowModality(Qt::WindowModal);
-    dlg.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint |
-                       Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
+    dlg.setWindowFlags(ui::stable_window_flags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint |
+                       Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint));
 
     QFutureWatcher<void> watcher;
 
@@ -216,8 +187,6 @@ void ProtocolExp::onAccept()
     connect(this, SIGNAL(export_progress(int)), &dlg, SLOT(setValue(int)));
     connect(&dlg, SIGNAL(canceled()), this, SLOT(cancel_export()));
 
-    m_timer.start();
-    this->hide();
     watcher.setFuture(future);
     dlg.exec();
 
@@ -365,6 +334,18 @@ bool ProtocolExp::compare_ann_index(const data::decode::Annotation *a,
     assert(a);
     assert(b);
     return a->start_sample() < b->start_sample();
+}
+
+void ProtocolExp::reject()
+{
+    using namespace Qt;
+
+    QDialog::reject();
+}
+
+void ProtocolExp::cancel_export()
+{
+    _export_cancel = true;
 }
 
 } // namespace dialogs

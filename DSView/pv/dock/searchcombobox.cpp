@@ -54,7 +54,9 @@ SearchComboBox::SearchComboBox(QWidget *parent)
 { 
     _bShow = false;
     _item_click = NULL;
-    setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
+    _scroll = NULL;
+    setModal(false);
+    setWindowFlags(ui::stable_window_flags(Qt::Popup | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint));
 }
 
 SearchComboBox::~SearchComboBox(){
@@ -128,19 +130,17 @@ void SearchComboBox::ShowDlg(QWidget *editline)
 
     if (editline != NULL)
     {
-        QPoint p1 = editline->pos();
-        QPoint p2 = editline->mapToGlobal(p1);
-        int x = p2.x() - p1.x();
-        int y = p2.y() - p1.y();
-        this->move(x, y);       
+        const QPoint popupPos = editline->mapToGlobal(QPoint(0, editline->height()));
+        this->move(popupPos);
     } 
-
-    edit->setFocus();
 
     connect(edit, SIGNAL(textEdited(const QString &)), 
                     this, SLOT(on_keyword_changed(const QString &)));
 
     this->show();
+    this->raise();
+    this->activateWindow();
+    edit->setFocus(Qt::PopupFocusReason);
 }
 
 void SearchComboBox::AddDataItem(QString id, QString name, void *data_handle)
@@ -154,7 +154,7 @@ void SearchComboBox::AddDataItem(QString id, QString name, void *data_handle)
 
  void SearchComboBox::changeEvent(QEvent *event)
  {
-    if (event->type() == QEvent::ActivationChange){
+    if (!ui::is_wayland_platform() && event->type() == QEvent::ActivationChange){
         if (this->isActiveWindow() == false){
             this->close();
             this->deleteLater();

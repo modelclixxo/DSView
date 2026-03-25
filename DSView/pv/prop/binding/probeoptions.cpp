@@ -222,11 +222,7 @@ QString ProbeOptions::print_vdiv(GVariant *const gvar)
         q = 1;
         p /= 1000;
     }
-    
-    char *pstr = sr_voltage_string(p, q);
-    QString qstr(pstr);
-    g_free(pstr);
-	return qstr;
+	return QString(sr_voltage_string(p, q));
 }
 
 QString ProbeOptions::print_coupling(GVariant *const gvar)

@@ -85,6 +85,10 @@ private:
     bool _connected;
     SigSession* _session;
 
+    QIcon language_icon(int language) const;
+    void apply_language(int language);
+    void update_language_menu_icon();
+
     XToolButton _logo_button;
 
     QMenu *_menu;
@@ -92,6 +96,9 @@ private:
     QMenu *_language;
     QAction *_action_en;
     QAction *_action_cn;
+    QAction *_action_de;
+    QAction *_action_fr;
+    QAction *_action_it;
 
     QAction *_about;
     QAction *_manual;

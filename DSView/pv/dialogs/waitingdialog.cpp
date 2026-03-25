@@ -32,6 +32,7 @@
 #include "../view/trace.h"
 #include "../view/dsosignal.h"
 #include "../config/appconfig.h"
+#include "../ui/fn.h"
 #include "../ui/langresource.h"
 #include "../appcontrol.h"
 
@@ -114,8 +115,8 @@ void WaitingDialog::accept()
     QProgressDialog dlg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_SAVE_CALIBRATION_RESULTS), "Save calibration results... It can take a while."),
                         L_S(STR_PAGE_DLG, S_ID(IDS_DLG_CANCEL), "Cancel"),0,0,this,flags);
     dlg.setWindowModality(Qt::WindowModal);
-    dlg.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint |
-                       Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
+    dlg.setWindowFlags(ui::stable_window_flags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint |
+                       Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint));
     dlg.setCancelButton(NULL);
 
     QFutureWatcher<void> watcher;
@@ -143,8 +144,8 @@ void WaitingDialog::reject()
     QProgressDialog dlg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_LOAD_CURRENT_SETTING), "Load current setting... It can take a while."),
                         L_S(STR_PAGE_DLG, S_ID(IDS_DLG_CANCEL), "Cancel"),0,0,this,flags);
     dlg.setWindowModality(Qt::WindowModal);
-    dlg.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint |
-                       Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
+    dlg.setWindowFlags(ui::stable_window_flags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint |
+                       Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint));
     dlg.setCancelButton(NULL);
 
     QFutureWatcher<void> watcher;

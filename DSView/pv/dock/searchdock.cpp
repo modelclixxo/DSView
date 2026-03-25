@@ -29,6 +29,7 @@
 #include "../data/snapshot.h"
 #include "../data/logicsnapshot.h"
 #include "../dialogs/dsmessagebox.h"
+#include "../ui/fn.h"
 
 #include <QObject>
 #include <QPainter> 
@@ -38,40 +39,11 @@
 #include <QProgressDialog>
 #include <QtConcurrent/QtConcurrent>
 #include <stdint.h> 
-#include <QWidget>
 #include "../config/appconfig.h"
 #include "../ui/langresource.h"
 #include "../ui/msgbox.h"
 #include "../appcontrol.h"
 #include "../ui/fn.h"
-#include "../log.h"
-
-
-class EdgeSearchProgressDialog : public QProgressDialog
-{
-public:
-    EdgeSearchProgressDialog(QWidget *parent, QString &title, QString &cancelText)
-        :QProgressDialog(title, cancelText, 0, 0, parent, Qt::CustomizeWindowHint)
-    {
-
-    }
-
-    ~EdgeSearchProgressDialog(){
-
-    }
-
-protected:
-    void keyPressEvent(QKeyEvent *event) override
-    {
-        if (event->key() == Qt::Key_Escape) {
-            canceled();
-            close();
-        }
-        else { 
-            QWidget::keyPressEvent(event);
-        }
-    }
-};
 
 namespace pv {
 namespace dock {
@@ -84,9 +56,6 @@ SearchDock::SearchDock(QWidget *parent, View &view, SigSession *session) :
     _session(session),
     _view(view)
 { 
-    _is_busy = false;
-    _is_cancel = false;
-
     _search_button = new QPushButton(this);
     _search_button->setFixedWidth(_search_button->height());
     _search_button->setDisabled(true);
@@ -141,16 +110,14 @@ void SearchDock::reStyle()
 
 void SearchDock::paintEvent(QPaintEvent *)
 {
+//    QStyleOption opt;
+//    opt.init(this);
+//    QPainter p(this);
+//    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
 void SearchDock::on_previous()
 {
-    if (_is_busy){
-        dsv_info("The searching task is busy,please wait.");
-        return;
-    }
-
-    _is_cancel = false;
     bool ret;
     int64_t last_pos;
     bool last_hit;
@@ -174,35 +141,28 @@ void SearchDock::on_previous()
     }
     else {
         QFuture<void> future;
-
         future = QtConcurrent::run([&]{
             last_pos -= last_hit;
-            _is_busy = true;
             ret = logic_snapshot->pattern_search(0, end, last_pos, _pattern, false);
-            _is_busy = false;
         });
-
         Qt::WindowFlags flags = Qt::CustomizeWindowHint;
-        QString title = L_S(STR_PAGE_DLG, S_ID(IDS_DLG_SEARCH_PREVIOUS), "Search Previous...");
-        QString cancelText = L_S(STR_PAGE_DLG, S_ID(IDS_DLG_CANCEL), "Cancel");
-        EdgeSearchProgressDialog dlg(this, title, cancelText);
+        QProgressDialog dlg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_SEARCH_PREVIOUS), "Search Previous..."),
+                            L_S(STR_PAGE_DLG, S_ID(IDS_DLG_CANCEL), "Cancel"),0,0,this,flags);
         dlg.setWindowModality(Qt::WindowModal);
-        dlg.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint |
-                           Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
+        dlg.setWindowFlags(ui::stable_window_flags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint |
+                           Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint));
+        dlg.setCancelButton(NULL);
 
         QFutureWatcher<void> watcher;
-        connect(&watcher, SIGNAL(finished()), &dlg, SLOT(cancel()));
-        connect(&dlg, SIGNAL(canceled()), SLOT(on_progress_cancel()));
+        connect(&watcher,SIGNAL(finished()),&dlg,SLOT(cancel()));
         watcher.setFuture(future);
         dlg.exec();
 
         if (!ret) {
             QString strMsg(L_S(STR_PAGE_MSG, S_ID(IDS_MSG_PATTERN_NOT_FOUND), "Pattern not found!"));
-            if (!_is_cancel){
-                MsgBox::Show(strMsg);
-            }           
-        }
-        else {
+            MsgBox::Show(strMsg);
+            return;
+        } else {
             _view.set_search_pos(last_pos, true);
         }
     }
@@ -210,13 +170,6 @@ void SearchDock::on_previous()
 
 void SearchDock::on_next()
 {
-    if (_is_busy){
-        dsv_info("The searching task is busy,please wait.");
-        return;
-    }
-
-    _is_cancel = false;
-
     bool ret;
     int64_t last_pos;
     const auto snapshot = _session->get_snapshot(SR_CHANNEL_LOGIC);
@@ -235,51 +188,31 @@ void SearchDock::on_next()
         QString strMsg(L_S(STR_PAGE_MSG, S_ID(IDS_MSG_SEARCH_AT_END), "Search cursor at the end position!"));
         MsgBox::Show(strMsg);
         return;
-    }
-    else {
+    } else {
         QFuture<void> future;
-
         future = QtConcurrent::run([&]{
-            _is_busy = true;
             ret = logic_snapshot->pattern_search(0, end, last_pos, _pattern, true);
-            _is_busy = false;
         });
-
         Qt::WindowFlags flags = Qt::CustomizeWindowHint;
-        QString title = L_S(STR_PAGE_DLG, S_ID(IDS_DLG_SEARCH_NEXT), "Search Next...");
-        QString cancelText = L_S(STR_PAGE_DLG, S_ID(IDS_DLG_CANCEL), "Cancel");
-        EdgeSearchProgressDialog dlg(this, title, cancelText);
+        QProgressDialog dlg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_SEARCH_NEXT), "Search Next..."),
+                            L_S(STR_PAGE_DLG, S_ID(IDS_DLG_CANCEL), "Cancel"),0,0,this,flags);
         dlg.setWindowModality(Qt::WindowModal);
-        dlg.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint |
-                           Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
+        dlg.setWindowFlags(ui::stable_window_flags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint |
+                           Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint));
+        dlg.setCancelButton(NULL);
 
         QFutureWatcher<void> watcher;
-        connect(&watcher, SIGNAL(finished()), &dlg, SLOT(cancel()));
-        connect(&dlg, SIGNAL(canceled()), SLOT(on_progress_cancel()));
+        connect(&watcher,SIGNAL(finished()),&dlg,SLOT(cancel()));
         watcher.setFuture(future);
         dlg.exec();
 
         if (!ret) {
             QString strMsg(L_S(STR_PAGE_MSG, S_ID(IDS_MSG_PATTERN_NOT_FOUND), "Pattern not found!"));
-            if (!_is_cancel){
-                MsgBox::Show(strMsg);
-            }  
-        }
-        else {
+            MsgBox::Show(strMsg);
+            return;
+        } else {
             _view.set_search_pos(last_pos, true);
         }
-    }
-}
-
-void SearchDock::on_progress_cancel()
-{
-    const auto snapshot = _session->get_snapshot(SR_CHANNEL_LOGIC);
-    const auto logic_snapshot = dynamic_cast<data::LogicSnapshot*>(snapshot);
-
-    _is_cancel = true;
-
-    if (logic_snapshot != NULL){
-        logic_snapshot->cancel_search();
     }
 }
 

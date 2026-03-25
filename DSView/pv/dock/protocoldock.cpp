@@ -27,6 +27,7 @@
 #include "../dialogs/protocollist.h"
 #include "../dialogs/protocolexp.h" 
 #include "../view/view.h"
+#include "../ui/fn.h"
 
 #include <QObject>
 #include <QHBoxLayout>
@@ -297,12 +298,17 @@ void ProtocolDock::on_add_protocol()
         return;
     }
     if (_selected_protocol_id == ""){
-        MsgBox::Show(NULL, L_S(STR_PAGE_MSG, S_ID(IDS_MSG_NO_SEL_DECODER), "Please select a decoder!"));
+        show_protocol_select();
         return;
     }
 
     int dex = this->get_protocol_index_by_id(_selected_protocol_id);
-    assert(dex >= 0);
+    if (dex < 0){
+        _selected_protocol_id = "";
+        _pro_keyword_edit->ResetText();
+        show_protocol_select();
+        return;
+    }
 
     //check the base protocol
     srd_decoder *const dec = (srd_decoder *)(_decoderInfoList[dex]->_data_handle);
@@ -837,8 +843,8 @@ void ProtocolDock::search_update()
         QProgressDialog dlg(L_S(STR_PAGE_DLG, S_ID(IDS_DLG_SEARCHING), "Searching..."),
                             L_S(STR_PAGE_DLG, S_ID(IDS_DLG_CANCEL), "Cancel"),0,0,this,flags);
         dlg.setWindowModality(Qt::WindowModal);
-        dlg.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint |
-                           Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
+        dlg.setWindowFlags(ui::stable_window_flags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint |
+                           Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint));
         dlg.setCancelButton(NULL);
 
         QFutureWatcher<void> watcher;

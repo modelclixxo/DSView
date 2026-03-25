@@ -37,13 +37,6 @@
 
 #include "toolbars/titlebar.h"
 
-
-#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
-typedef qintptr *MESSAGE_RESULT_PTR;
-#else
-typedef long *MESSAGE_RESULT_PTR;
-#endif
-
 namespace pv {
  
 class MainWindow;
@@ -115,14 +108,14 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void closeEvent(QCloseEvent *event);
     bool eventFilter(QObject *object, QEvent *event) override;
-
 #ifdef _WIN32
     void showEvent(QShowEvent *event);
-    bool nativeEvent(const QByteArray &eventType, void *message, MESSAGE_RESULT_PTR result) override;
 #endif
 
     void changeEvent(QEvent *event) override; 
 
+    bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
+ 
 signals:
     void sig_ParentNativeEvent(int msg);
 
@@ -179,6 +172,7 @@ private:
 #endif
 
     bool    _is_win32_parent_window;
+    bool    _use_native_window_frame;
     bool    _is_resize_ready;
     WinNativeWidget *_parentNativeWidget; 
     FormInitInfo    _initWndInfo;

@@ -37,13 +37,13 @@
 #include <QStandardPaths>
 #include <QScreen>
 #include <QTimer>
+#include <QLibraryInfo>
 #include <libusb-1.0/libusb.h>
 #include <QGuiApplication>
 #include <QTextStream>
 #include <QJsonValue>
 #include <QJsonArray>
 #include <functional>
-#include "utility/formatting.h"
 
 //include with qt5
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -526,8 +526,7 @@ namespace pv
     void MainWindow::on_screenShot()
     {
         AppConfig &app = AppConfig::Instance();
-        QString dateTimeString = Formatting::DateTimeToString(QDateTime::currentDateTime(), TimeStrigFormatType::TIME_STR_FORMAT_SHORT2);
-        QString default_name = app.userHistory.screenShotPath + "/" + APP_NAME + "-" + dateTimeString;
+        QString default_name = app.userHistory.screenShotPath + "/" + APP_NAME + QDateTime::currentDateTime().toString("-yyMMdd-hhmmss");
 
         int x = parentWidget()->pos().x();
         int y = parentWidget()->pos().y();
@@ -559,7 +558,7 @@ namespace pv
         QPixmap pixmap = QGuiApplication::screens().at(curMonitor)->grabWindow(winId(), x, y, w, h);
     #endif       
 #else       
-        QPixmap pixmap = QGuiApplication::primaryScreen()->grabWindow(winId());
+        QPixmap pixmap = parentWidget()->grab();
 #endif
 
         QString format = "png";
@@ -1276,32 +1275,20 @@ namespace pv
                 break;
 
             case Qt::Key_PageUp:
-#ifdef _WIN32
-            case 33:
-#endif
                 _view->set_scale_offset(_view->scale(),
                                         _view->offset() - _view->get_view_width());
                 break;
             case Qt::Key_PageDown:
-#ifdef _WIN32
-            case 34:
-#endif
                 _view->set_scale_offset(_view->scale(),
                                         _view->offset() + _view->get_view_width());
 
                 break;
 
             case Qt::Key_Left:
-#ifdef _WIN32
-            case 37:
-#endif
                 _view->zoom(1);
                 break;
 
             case Qt::Key_Right:
-#ifdef _WIN32
-            case 39:
-#endif
                 _view->zoom(-1);
                 break;
 
@@ -1338,9 +1325,6 @@ namespace pv
                 break;
 
             case Qt::Key_Up: 
-#ifdef _WIN32
-            case 38:
-#endif
                 for (auto s : sigs)
                 {
                     if (s->signal_type() == SR_CHANNEL_DSO){
@@ -1356,9 +1340,6 @@ namespace pv
                 break;
 
             case Qt::Key_Down:
-#ifdef _WIN32
-            case 40:
-#endif
                 for (auto s : sigs)
                 {
                     if (s->signal_type() == SR_CHANNEL_DSO){
@@ -1393,7 +1374,10 @@ namespace pv
             app.frameOptions.language = language;
             app.SaveFrame();
             LangResource::Instance()->Load(language);     
-        }        
+        }
+
+        qApp->removeTranslator(&_qtTrans);
+        qApp->removeTranslator(&_myTrans);
 
         if (language == LAN_CN)
         {
@@ -1402,10 +1386,17 @@ namespace pv
             _myTrans.load(":/my_" + QString::number(language));
             qApp->installTranslator(&_myTrans);
         }
-        else if (language == LAN_EN)
+        else if (language != LAN_EN)
         {
-            qApp->removeTranslator(&_qtTrans);
-            qApp->removeTranslator(&_myTrans);
+            const QString locale = GetLanguageQtLocale(language);
+            const QString translationsPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+
+            if (_qtTrans.load("qtbase_" + locale, translationsPath)) {
+                qApp->installTranslator(&_qtTrans);
+            }
+            if (_myTrans.load("qt_" + locale, translationsPath)) {
+                qApp->installTranslator(&_myTrans);
+            }
         }
 
         retranslateUi();
@@ -2229,11 +2220,6 @@ namespace pv
     QWidget* MainWindow::GetBodyView()
     {
         return _view;
-    }
-
-    void MainWindow::OnWindowsPowerEvent(bool bEnterSleep)
-    {
-        _session->ProcessPowerEvent(bEnterSleep);
-    }
+    }   
   
 } // namespace pv

@@ -36,6 +36,7 @@
 #include "../config/appconfig.h"
 #include "../ui/langresource.h"
 #include "../ui/msgbox.h"
+#include "../ui/fn.h"
 #include <QObject>
 #include <QPainter> 
 #include "../appcontrol.h"
@@ -556,8 +557,8 @@ void MeasureDock::popup_all_coursors()
     _sel_btn = qobject_cast<QPushButton *>(sender());
 
     QDialog cursor_dlg(_widget);
-    cursor_dlg.setWindowFlags(Qt::FramelessWindowHint | Qt::Popup | Qt::WindowSystemMenuHint |
-                              Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint);
+    cursor_dlg.setWindowFlags(ui::stable_window_flags(Qt::FramelessWindowHint | Qt::Popup | Qt::WindowSystemMenuHint |
+                              Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint));
 
     QFont font = this->font();
     font.setPointSizeF(AppConfig::Instance().appOptions.fontSize);
@@ -579,8 +580,8 @@ void MeasureDock::popup_all_coursors()
 
     QRect sel_btn_rect = _sel_btn->geometry();
     sel_btn_rect.moveTopLeft(_sel_btn->parentWidget()->mapToGlobal(sel_btn_rect.topLeft()));
-    cursor_dlg.setGeometry(sel_btn_rect.left(), sel_btn_rect.bottom()+10,
-                           cursor_dlg.width(), cursor_dlg.height());
+    cursor_dlg.adjustSize();
+    cursor_dlg.move(sel_btn_rect.left(), sel_btn_rect.bottom() + 10);
     cursor_dlg.exec();
 }
 

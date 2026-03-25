@@ -1,0 +1,830 @@
+[
+    {
+        "id": "IDS_DLG_LOG_OPTIONS",
+        "text": "Protokolloptionen"
+    },
+    {
+        "id": "IDS_DLG_LOG_LEVEL",
+        "text": "Protokollebene"
+    },
+    {
+        "id": "IDS_DLG_SAVE_FILE",
+        "text": "In Datei speichern"
+    },
+    {
+        "id": "IDS_DLG_OPEN_FILE",
+        "text": "Datei öffnen"
+    },
+    {
+        "id": "IDS_DLG_OPEN_SEESION",
+        "text": "Sitzung öffnen"
+    },
+    {
+        "id": "IDS_DLG_SAVE_SEESION",
+        "text": "Sitzung speichern"
+    },
+    {
+        "id": "IDS_DLG_DOCUMENT",
+        "text": "Dokumentieren"
+    },
+    {
+        "id": "IDS_DLG_TRIGGER_DOCK_TITLE",
+        "text": "Trigger-Einstellungen"
+    },
+    {
+        "id": "IDS_DLG_PROTOCOL_DOCK_TITLE",
+        "text": "Decoder"
+    },
+    {
+        "id": "IDS_DLG_MEASURE_DOCK_TITLE",
+        "text": "Messung"
+    },
+    {
+        "id": "IDS_DLG_SEARCH_DOCK_TITLE",
+        "text": "Suchen"
+    },
+    {
+        "id": "IDS_DLG_SAVE_AS",
+        "text": "Speichern unter"
+    },
+    {
+        "id": "IDS_DLG_CHECK_USB_SPEED_ERROR",
+        "text": "Das Anschließen des aktuellen Geräts an einen USB 2.0-Port wirkt sich erheblich auf seine Leistung aus.\nBitte schließen Sie es wieder an einen USB 3.0-Port an."
+    },
+    {
+        "id": "IDS_DLG_CHECK_SESSION_FILE_VERSION_ERROR",
+        "text": "Diese Datei hat ein altes Format.\nEs lädt langsam.\nSie können es nach dem Laden erneut speichern."
+    },
+    {
+        "id": "IDS_DLG_ABOUT",
+        "text": "Um"
+    },
+    {
+        "id": "IDS_DLG_DISPLAY_OPTIONS",
+        "text": "Anzeigeoptionen"
+    },
+    {
+        "id": "IDS_DLG_QUICK_SCROLL",
+        "text": "Wellenform-Scrollen durch Ziehen mit der Maus"
+    },
+    {
+        "id": "IDS_DLG_SAVE",
+        "text": "Speichern"
+    },
+    {
+        "id": "IDS_DLG_RESET",
+        "text": "Zurücksetzen"
+    },
+    {
+        "id": "IDS_DLG_EXIT",
+        "text": "Ausfahrt"
+    },
+    {
+        "id": "IDS_DLG_MANUAL_CALIBRATION",
+        "text": "Manuelle Kalibrierung"
+    },
+    {
+        "id": "IDS_DLG_CHANNEL",
+        "text": "Kanal"
+    },
+    {
+        "id": "IDS_DLG_SAVE_CALIBRATION_RESULTS",
+        "text": "Kalibrierungsergebnisse werden gespeichert... Bitte warten Sie einen Moment."
+    },
+    {
+        "id": "IDS_DLG_CANCEL",
+        "text": "Stornieren"
+    },
+    {
+        "id": "IDS_DLG_RELOAD_CALIBRATION_RESULTS",
+        "text": "Die vorherigen Kalibrierungsergebnisse werden erneut geladen... Bitte warten Sie einen Moment."
+    },
+    {
+        "id": "IDS_DLG_DECODER_OPTIONS",
+        "text": "Decoder-Optionen"
+    },
+    {
+        "id": "IDS_DLG_CURSOR",
+        "text": "Cursor"
+    },
+    {
+        "id": "IDS_DLG_CURSOR_FOR_DECODE_START",
+        "text": "Startposition der Dekodierung"
+    },
+    {
+        "id": "IDS_DLG_CURSOR_FOR_DECODE_END",
+        "text": "Endposition dekodieren"
+    },
+    {
+        "id": "IDS_DLG_DEVICE_OPTIONS",
+        "text": "Geräteoptionen"
+    },
+    {
+        "id": "IDS_DLG_MODE",
+        "text": "Optionen"
+    },
+    {
+        "id": "IDS_DLG_ENABLE_ALL",
+        "text": "Alle aktivieren"
+    },
+    {
+        "id": "IDS_DLG_DISABLE_ALL",
+        "text": "Alle deaktivieren"
+    },
+    {
+        "id": "IDS_DLG_ENABLE",
+        "text": "Aktivieren:"
+    },
+    {
+        "id": "IDS_DLG_AUTO_CALIBRATION",
+        "text": "Automatische Kalibrierung"
+    },
+    {
+        "id": "IDS_DLG_CALIBRATION",
+        "text": "Kalibrierung"
+    },
+    {
+        "id": "IDS_DLG_MEASUREMENTS",
+        "text": "Messungen"
+    },
+    {
+        "id": "IDS_DLG_FFT_ENABLE",
+        "text": "FFT Aktivieren:"
+    },
+    {
+        "id": "IDS_DLG_FFT_LENGTH",
+        "text": "FFT Länge:"
+    },
+    {
+        "id": "IDS_DLG_SAMPLE_INTERVAL",
+        "text": "Probenintervall:"
+    },
+    {
+        "id": "IDS_DLG_FFT_SOURCE",
+        "text": "FFT Quelle:"
+    },
+    {
+        "id": "IDS_DLG_FFT_WINDOW",
+        "text": "FFT Fenster:"
+    },
+    {
+        "id": "IDS_DLG_DC_IGNORED",
+        "text": "DC Ignoriert:"
+    },
+    {
+        "id": "IDS_DLG_Y-AXIS_MODE",
+        "text": "Y-Achsen-Modus:"
+    },
+    {
+        "id": "IDS_DLG_DBV_RANGE",
+        "text": "DBV Bereich:"
+    },
+    {
+        "id": "IDS_DLG_FFT_OPTIONS",
+        "text": "FFT Optionen"
+    },
+    {
+        "id": "IDS_DLG_INTERVAL_S",
+        "text": "Intervall(e):"
+    },
+    {
+        "id": "IDS_DLG_REPETITIVE_INTERVAL",
+        "text": "Wiederholtes Intervall"
+    },
+    {
+        "id": "IDS_DLG_X_AXIS",
+        "text": "X-Achse"
+    },
+    {
+        "id": "IDS_DLG_Y_AXIS",
+        "text": "Y-Achse"
+    },
+    {
+        "id": "IDS_DLG_LISSAJOUS_OPTIONS",
+        "text": "Lissajous Optionen"
+    },
+    {
+        "id": "IDS_DLG_ADD",
+        "text": "Hinzufügen"
+    },
+    {
+        "id": "IDS_DLG_SUBSTRACT",
+        "text": "Subtrahieren"
+    },
+    {
+        "id": "IDS_DLG_MULTIPLY",
+        "text": "Multiplizieren"
+    },
+    {
+        "id": "IDS_DLG_DIVIDE",
+        "text": "Teilen"
+    },
+    {
+        "id": "IDS_DLG_MATH_TYPE",
+        "text": "Mathematiktyp"
+    },
+    {
+        "id": "IDS_DLG_1ST_SOURCE",
+        "text": "1. Quelle"
+    },
+    {
+        "id": "IDS_DLG_2ST_SOURCE",
+        "text": "2. Quelle"
+    },
+    {
+        "id": "IDS_DLG_MATH_OPTIONS",
+        "text": "Mathe-Optionen"
+    },
+    {
+        "id": "IDS_DLG_EXPORT_FORMAT",
+        "text": "Exportformat:"
+    },
+    {
+        "id": "IDS_DLG_PROTOCOL_EXPORT",
+        "text": "Protokollexport"
+    },
+    {
+        "id": "IDS_DLG_EXPORT_DATA",
+        "text": "Daten exportieren:"
+    },
+    {
+        "id": "IDS_DLG_EXPORT_PROTOCOL_LIST_RESULT",
+        "text": "Dekodierungsergebnisse werden exportiert... Bitte warten Sie einen Moment."
+    },
+    {
+        "id": "IDS_DLG_FIT_TO_WINDOW",
+        "text": "Fenstergröße anpassen"
+    },
+    {
+        "id": "IDS_DLG_FIXED",
+        "text": "Behoben"
+    },
+    {
+        "id": "IDS_DLG_MAP_ZOOM",
+        "text": "Sprungzoom:"
+    },
+    {
+        "id": "IDS_DLG_DECODED_PROTOCOLS",
+        "text": "Dekodierte Protokolle:"
+    },
+    {
+        "id": "IDS_DLG_PROTOCOL_LIST_VIEWER",
+        "text": "Dekodierungsergebnisse"
+    },
+    {
+        "id": "IDS_DLG_REGION",
+        "text": "Region"
+    },
+    {
+        "id": "IDS_DLG_SEARCH_LABEL",
+        "text": "X: Ist mir egal\n0: Niedriges Niveau\n1: Hohes Niveau\nR: Steigende Flanke\nF: Fallende Flanke\nC: Steigende/fallende Flanke"
+    },
+    {
+        "id": "IDS_DLG_SEARCH_OPTIONS",
+        "text": "Suchoptionen"
+    },
+    {
+        "id": "IDS_DLG_SAVING",
+        "text": "Sparen..."
+    },
+    {
+        "id": "IDS_DLG_ORIGINAL_DATA",
+        "text": "Originaldaten"
+    },
+    {
+        "id": "IDS_DLG_COMPRESSED_DATA",
+        "text": "Komprimierte Daten"
+    },
+    {
+        "id": "IDS_DLG_EXPORT",
+        "text": "Export"
+    },
+    {
+        "id": "IDS_DLG_EXPORTING",
+        "text": "Exportieren..."
+    },
+    {
+        "id": "IDS_DLG_DONT_CONNECT_PROBES",
+        "text": "Keine Sonden anschließen!"
+    },
+    {
+        "id": "IDS_DLG_LOAD_CURRENT_SETTING",
+        "text": "Aktuelle Einstellungen werden geladen... Bitte warten Sie einen Moment."
+    },
+    {
+        "id": "IDS_DLG_WAITING",
+        "text": "Warten"
+    },
+    {
+        "id": "IDS_DLG_FINISHED",
+        "text": "Fertig!"
+    },
+    {
+        "id": "IDS_DLG_US",
+        "text": "uns"
+    },
+    {
+        "id": "IDS_DLG_MS",
+        "text": "MS"
+    },
+    {
+        "id": "IDS_DLG_S",
+        "text": "S"
+    },
+    {
+        "id": "IDS_DLG_TRIGGER_POSITION",
+        "text": "Triggerposition:"
+    },
+    {
+        "id": "IDS_DLG_HOLD_OFF_TIME",
+        "text": "Wartezeit:"
+    },
+    {
+        "id": "IDS_DLG_NOISE_SENSITIVITY",
+        "text": "Triggerempfindlichkeit:"
+    },
+    {
+        "id": "IDS_DLG_TRIGGER_SOURCES",
+        "text": "Triggerquellen:"
+    },
+    {
+        "id": "IDS_DLG_TRIGGER_TYPES",
+        "text": "Triggertypen:"
+    },
+    {
+        "id": "IDS_DLG_RISING_EDGE",
+        "text": "Steigende Kante"
+    },
+    {
+        "id": "IDS_DLG_FALLING_EDGE",
+        "text": "Fallende Kante"
+    },
+    {
+        "id": "IDS_DLG_AUTO",
+        "text": "Auto"
+    },
+    {
+        "id": "IDS_DLG_CHANNEL_0",
+        "text": "Kanal 0"
+    },
+    {
+        "id": "IDS_DLG_CHANNEL_1",
+        "text": "Kanal 1"
+    },
+    {
+        "id": "IDS_DLG_CHANNEL_0_AND_1",
+        "text": "Kanal 0 && 1"
+    },
+    {
+        "id": "IDS_DLG_CHANNEL_0_OR_1",
+        "text": "Kanal 0 | 1"
+    },
+    {
+        "id": "IDS_DLG_KEY_DECODER_SEARCH",
+        "text": "Decodersuche..."
+    },
+    {
+        "id": "IDS_DLG_TIME_SAMPLES",
+        "text": "Zeit/Proben"
+    },
+    {
+        "id": "IDS_DLG_MOUSE_MEASUREMENT",
+        "text": "Mausmessung"
+    },
+    {
+        "id": "IDS_DLG_ENABLE_FLOATING_MEASUREMENT",
+        "text": "Aktivieren Sie die gleitende Messung"
+    },
+    {
+        "id": "IDS_DLG_CURSOR_DISTANCE",
+        "text": "Cursorentfernung"
+    },
+    {
+        "id": "IDS_DLG_EDGES",
+        "text": "Kanten"
+    },
+    {
+        "id": "IDS_DLG_CURSORS",
+        "text": "Cursor"
+    },
+    {
+        "id": "IDS_DLG_RIS_OR_FAL_EDGE",
+        "text": "Steigend/Fallend/Flanken"
+    },
+    {
+        "id": "IDS_DLG_W",
+        "text": "W:"
+    },
+    {
+        "id": "IDS_DLG_P",
+        "text": "P:"
+    },
+    {
+        "id": "IDS_DLG_F",
+        "text": "F:"
+    },
+    {
+        "id": "IDS_DLG_D",
+        "text": "D:"
+    },
+    {
+        "id": "IDS_DLG_SEARCH",
+        "text": "suchen"
+    },
+    {
+        "id": "IDS_DLG_MATCHING_ITEMS",
+        "text": "Passende Artikel:"
+    },
+    {
+        "id": "IDS_DLG_OUT_OF_MEMORY",
+        "text": "Nicht genügend Speicher"
+    },
+    {
+        "id": "IDS_DLG_SEARCHING",
+        "text": "Suche..."
+    },
+    {
+        "id": "IDS_DLG_SEARCH_PREVIOUS",
+        "text": "Suche Vorherige..."
+    },
+    {
+        "id": "IDS_DLG_SEARCH_NEXT",
+        "text": "Weiter suchen..."
+    },
+    {
+        "id": "IDS_DLG_SIMPLE_TRIGGER",
+        "text": "Einfacher Auslöser"
+    },
+    {
+        "id": "IDS_DLG_ADVANCED_TRIGGER",
+        "text": "Erweiterter Trigger"
+    },
+    {
+        "id": "IDS_DLG_TRIGGER_POSITION",
+        "text": "Triggerposition:"
+    },
+    {
+        "id": "IDS_DLG_TOTAL_TRIGGER_STAGES",
+        "text": "Gesamte Triggerstufen:"
+    },
+    {
+        "id": "IDS_DLG_START_FLAG",
+        "text": "Startflagge:"
+    },
+    {
+        "id": "IDS_DLG_STOP_FLAG",
+        "text": "Stopp-Flag:"
+    },
+    {
+        "id": "IDS_DLG_CLOCK_FLAG",
+        "text": "Uhrenflagge:"
+    },
+    {
+        "id": "IDS_DLG_DATA_CHANNEL",
+        "text": "Datenkanal:"
+    },
+    {
+        "id": "IDS_DLG_DATA_VALUE",
+        "text": "Datenwert:"
+    },
+    {
+        "id": "IDS_DLG_SERIAL_TRIGGER",
+        "text": "Serieller Trigger"
+    },
+    {
+        "id": "IDS_DLG_STAGE_TRIGGER",
+        "text": "Bühnenauslöser"
+    },
+    {
+        "id": "IDS_DLG_SERIAL_NOTE_LABEL",
+        "text": "X: Ist mir egal\n0: Niedriges Niveau\n1: Hohes Niveau\nR: Steigende Flanke\nF: Fallende Flanke\nC: Steigende/fallende Flanke"
+    },
+    {
+        "id": "IDS_DLG_DATA_BITS",
+        "text": "Datenbits"
+    },
+    {
+        "id": "IDS_DLG_INV",
+        "text": "Inv"
+    },
+    {
+        "id": "IDS_DLG_COUNTER",
+        "text": "Schalter"
+    },
+    {
+        "id": "IDS_DLG_CONTIGUOUS",
+        "text": "Angrenzend"
+    },
+    {
+        "id": "IDS_DLG_STAGE",
+        "text": "Bühne"
+    },
+    {
+        "id": "IDS_DLG_OR",
+        "text": "Oder"
+    },
+    {
+        "id": "IDS_DLG_AND",
+        "text": "Und"
+    },
+    {
+        "id": "IDS_DLG_HZ",
+        "text": "Hz"
+    },
+    {
+        "id": "IDS_DLG_UNSHOWN",
+        "text": "Nicht gezeigt"
+    },
+    {
+        "id": "ZOOM_IN_FOR_DETAILS",
+        "text": "Für Details heranzoomen"
+    },
+    {
+        "id": "IDS_DLG_DECODETRACE_ERROR1",
+        "text": "Fehler:"
+    },
+    {
+        "id": "IDS_DLG_DECODETRACE_ERROR2",
+        "text": "Fehler: ..."
+    },
+    {
+        "id": "IDS_DLG_ADD_GROUP",
+        "text": "Gruppe hinzufügen"
+    },
+    {
+        "id": "IDS_DLG_DEL_GROUP",
+        "text": "Del-Gruppe"
+    },
+    {
+        "id": "IDS_DLG_SET_CHANNEL_COLOUR",
+        "text": "Stellen Sie die Kanalfarbe ein"
+    },
+    {
+        "id": "IDS_DLG_LISSAJOUS_FIGURE",
+        "text": "Lissajous Abbildung"
+    },
+    {
+        "id": "IDS_DLG_DATA_SOURCE_ERROR",
+        "text": "Datenquellenfehler."
+    },
+    {
+        "id": "IDS_DLG_ADD_X_CURSOR",
+        "text": "X-Cursor hinzufügen"
+    },
+    {
+        "id": "IDS_DLG_ADD_Y_CURSOR",
+        "text": "Y-Cursor hinzufügen"
+    },
+    {
+        "id": "IDS_DLG_AUTO_ROLL",
+        "text": "Automatisch (Rollen)"
+    },
+    {
+        "id": "IDS_DLG_WAITING_TRIG",
+        "text": "Wartender Trig"
+    },
+    {
+        "id": "IDS_DLG_TRIG_D",
+        "text": "Ausgelöst"
+    },
+    {
+        "id": "IDS_DLG_TRIGGERED",
+        "text": "Ausgelöst!"
+    },
+    {
+        "id": "IDS_DLG_CAPTURED",
+        "text": "% erfasst"
+    },
+    {
+        "id": "IDS_DLG_WAITING_FOR_TRIGGER",
+        "text": "Warten auf Auslöser!"
+    },
+    {
+        "id": "IDS_DLG_RISING",
+        "text": "Aufstand:"
+    },
+    {
+        "id": "IDS_DLG_FALLING",
+        "text": "Fallen:"
+    },
+    {
+        "id": "IDS_DLG_Edges_1",
+        "text": "Kanten:"
+    },
+    {
+        "id": "IDS_DLG_WIDTH",
+        "text": "Breite:"
+    },
+    {
+        "id": "IDS_DLG_PERIOD",
+        "text": "Zeitraum:"
+    },
+    {
+        "id": "IDS_DLG_FREQUENCY",
+        "text": "Frequenz:"
+    },
+    {
+        "id": "IDS_DLG_DUTY_CYCLE",
+        "text": "Arbeitszyklus:"
+    },
+    {
+        "id": "IDS_DLG_MEASURE",
+        "text": "Messen"
+    },
+    {
+        "id": "IDS_DLG_TRIGGER_TIME",
+        "text": "Auslösezeit:"
+    },
+    {
+        "id": "IDS_DLG_SAMPLES_CAPTURED",
+        "text": "Proben erfasst!"
+    },
+    {
+        "id": "IDS_DLG_FILE_THRESHOLD",
+        "text": "Schwelle:"
+    },
+    {
+        "id": "IDS_DLG_VIEW_CAPTURE",
+        "text": "Erfassen"
+    },
+    {
+        "id": "IDS_DLG_CHAN_NUM_ERR2",
+        "text": "Benötigt die Daten von zwei Kanälen."
+    },
+    {
+        "id": "IDS_DLG_PATH_NAME",
+        "text": "Weg"
+    },
+    {
+        "id": "IDS_DLG_DECODER_IF_TRANS",
+        "text": "Übersetzen Sie Parameternamen"
+    },
+    {
+        "id": "IDS_DLG_LOG_PATH",
+        "text": "Dateipfad"
+    },
+    {
+        "id": "IDS_DLG_OPEN",
+        "text": "Offen"
+    },
+    {
+        "id": "IDS_DLG_CLEARE",
+        "text": "Klar"
+    },
+    {
+        "id": "IDS_DLG_APPEND_MODE",
+        "text": "Anhängemodus"
+    },
+    {
+        "id": "IDS_DLG_TRIG_DISPLAY_MIDDLE",
+        "text": "Trig-Pos-Anzeige in der Mitte"
+    },
+    {
+        "id": "IDS_DLG_DISPLAY_PROFILE_IN_BAR",
+        "text": "Zeigen Sie das Profil in der Titelleiste an"
+    },
+    {
+        "id": "IDS_DLG_SERIAL_HEX",
+        "text": "Hex:"
+    },
+    {
+        "id": "IDS_DLG_SERIAL_INPUT_AS_HEX",
+        "text": "Eingabe im Hex-Format"
+    },
+    {
+        "id": "IDS_DLG_USE_ABORT_DATA_REPEAT",
+        "text": "Aktualisieren Sie die neuesten Daten für den Stopp des Wiederholungsmodus"
+    },
+    {
+        "id": "IDS_DLG_FONT_SIZE",
+        "text": "Schriftgröße"
+    },
+    {
+        "id": "IDS_DLG_GROUP_LOGIC",
+        "text": "Logikanalysator"
+    },
+    {
+        "id": "IDS_DLG_GROUP_DSO",
+        "text": "Oszilloskop"
+    },
+    {
+        "id": "IDS_DLG_GROUP_UI",
+        "text": "Benutzeroberfläche"
+    },
+    {
+        "id": "IDS_DLG_ABORT",
+        "text": "Abbrechen"
+    },
+    {
+        "id": "IDS_DLG_AUTO_SCROLL_LATEAST_DATA",
+        "text": "Automatisches Scrollen zu den neuesten Daten"
+    },
+    {
+        "id": "IDS_DLG_DATA_OUT_OFF_RANGE",
+        "text": "Daten außerhalb der Reichweite"
+    },
+    {
+        "id": "IDS_DLG_START_CURSOR",
+        "text": "Start"
+    },
+    {
+        "id": "IDS_DLG_END_CURSOR",
+        "text": "Ende"
+    },
+    {
+        "id": "IDS_DSO_CTR_EN",
+        "text": "DE"
+    },
+    {
+        "id": "IDS_DSO_CTR_DIS",
+        "text": "DIS"
+    },
+    {
+        "id": "IDS_DSO_CTR_GND",
+        "text": "GND"
+    },
+    {
+        "id": "IDS_DSO_CTR_DC",
+        "text": "DC"
+    },
+    {
+        "id": "IDS_DSO_CTR_AC",
+        "text": "Wechselstrom"
+    },
+    {
+        "id": "IDS_DSO_CTR_AUTO",
+        "text": "AUTO"
+    },
+    {
+        "id": "IDS_CALIB_VGAIN",
+        "text": "VGAIN"
+    },
+    {
+        "id": "IDS_CALIB_VOFF",
+        "text": "VOFF"
+    },
+    {
+        "id": "IDS_CALIB_VCOMB",
+        "text": "VCOMB"
+    },
+    {
+        "id": "IDS_FFT_WINDOW_RECTANGLE",
+        "text": "Rechteck"
+    },
+    {
+        "id": "IDS_FFT_WINDOW_HANN",
+        "text": "Hann"
+    },
+    {
+        "id": "IDS_FFT_WINDOW_HAMMING",
+        "text": "Hamming"
+    },
+    {
+        "id": "IDS_FFT_WINDOW_BLACKMAN",
+        "text": "Blackman"
+    },
+    {
+        "id": "IDS_FFT_WINDOW_FLATTOP",
+        "text": "Flat_top"
+    },
+    {
+        "id": "IDS_FFT_MODE_LINEARRSM",
+        "text": "Linear RMS"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_WEBSITE",
+        "text": "Webseite"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_GITHUB",
+        "text": "GitHub"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_COPYRIGHT",
+        "text": "Copyright"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_COPYRIGHT_TEXT",
+        "text": "© DreamSourceLab. Alle Rechte vorbehalten."
+    },
+    {
+        "id": "IDS_DLG_ABOUT_SPECIAL_THANKS",
+        "text": "Besonderer Dank"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_KICKSTARTER",
+        "text": "Allen Unterstützern auf Kickstarter"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_SIGROK",
+        "text": "Allen Mitgliedern des Sigrok-Projekts"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_OPEN_SOURCE",
+        "text": "Allen Mitwirkenden an Open-Source-Projekten"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_CHANGELOGS",
+        "text": "Changelogs"
+    }
+]
