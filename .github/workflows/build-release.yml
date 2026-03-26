@@ -36,13 +36,13 @@ jobs:
             artifact_name: dsview-windows-x86_64
             archive_name: windows-x86_64
           - name: macOS
-            os: macos-13
-            artifact_name: dsview-macos-x86_64
-            archive_name: macos-x86_64
+            os: macos-latest
+            artifact_name: dsview-macos
+            archive_name: macos
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Compute build metadata
         id: meta
@@ -125,6 +125,7 @@ jobs:
             mingw-w64-x86_64-fftw
             mingw-w64-x86_64-boost
             mingw-w64-x86_64-qt6-base
+            mingw-w64-x86_64-qt6-tools
 
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
@@ -141,7 +142,18 @@ jobs:
       - name: Configure Windows
         if: runner.os == 'Windows'
         shell: msys2 {0}
-        run: cmake -S . -B build -G Ninja -DDSVIEW_PREFER_QT6=ON -DDSVIEW_PACKAGE_VERSION_OVERRIDE="${{ steps.meta.outputs.package_version }}"
+        run: |
+          set -euo pipefail
+          export PKG_CONFIG_PATH="/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig"
+          export CMAKE_PREFIX_PATH="/mingw64"
+          export Python3_ROOT_DIR="/mingw64"
+          export Boost_ROOT="/mingw64"
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" \
+            -DPython3_ROOT_DIR="${Python3_ROOT_DIR}" \
+            -DBoost_ROOT="${Boost_ROOT}" \
+            -DDSVIEW_PREFER_QT6=ON \
+            -DDSVIEW_PACKAGE_VERSION_OVERRIDE="${{ steps.meta.outputs.package_version }}"
 
       - name: Configure macOS
         if: runner.os == 'macOS'
@@ -200,6 +212,7 @@ jobs:
         run: |
           set -euo pipefail
           version="${{ steps.meta.outputs.artifact_version }}"
+          dist_dir="$(pwd)/dist"
           stage="${RUNNER_TEMP}/stage"
           package_root="${RUNNER_TEMP}/DSView-${version}-${{ matrix.archive_name }}"
           mkdir -p "${stage}" "${package_root}" dist
@@ -216,7 +229,7 @@ jobs:
             cp -n "${dep}" "${package_root}/"
           done
 
-          7z a "dist/DSView-${version}-${{ matrix.archive_name }}.zip" "${package_root}" >/dev/null
+          (cd "${RUNNER_TEMP}" && zip -r "${dist_dir}/DSView-${version}-${{ matrix.archive_name }}.zip" "$(basename "${package_root}")" >/dev/null)
 
       - name: Package macOS
         if: runner.os == 'macOS'
@@ -239,7 +252,7 @@ jobs:
           mv "${stage}/DSView.dmg" "dist/DSView-${version}-${{ matrix.archive_name }}.dmg"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.artifact_name }}-${{ steps.meta.outputs.artifact_version }}
           path: dist/*
@@ -255,7 +268,7 @@ jobs:
 
     steps:
       - name: Download packaged artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: release-artifacts
 
