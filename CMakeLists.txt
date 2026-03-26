@@ -571,6 +571,13 @@ elseif(Qt5Core_FOUND)
 	qt5_add_resources(DSView_RESOURCES_RCC ${DSView_RESOURCES})
 endif()
 
+if(APPLE)
+	set(DSVIEW_APP_ICON_MACOSX ${CMAKE_CURRENT_SOURCE_DIR}/DSView.icns)
+	set_source_files_properties(${DSVIEW_APP_ICON_MACOSX}
+		PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+	list(APPEND DSView_SOURCES ${DSVIEW_APP_ICON_MACOSX})
+endif()
+
 
 add_definitions(${QT_DEFINITIONS})
 add_definitions(-Wall -Wextra -Wno-return-type -Wno-ignored-qualifiers)
@@ -633,15 +640,32 @@ else()
 	list(APPEND DSVIEW_LINK_LIBS ${PKGDEPS_LIBRARIES})
 endif()
 
-add_executable(${PROJECT_NAME}
-	${common_SOURCES}
-	${DSView_SOURCES}
-	${DSView_HEADERS_MOC}
-	${DSView_FORMS_HEADERS}
-	${DSView_RESOURCES_RCC}
-	${libsigrok4DSL_SOURCES}
-	${libsigrokdecode4DSL_SOURCES}
-)
+if(APPLE)
+	add_executable(${PROJECT_NAME} MACOSX_BUNDLE
+		${common_SOURCES}
+		${DSView_SOURCES}
+		${DSView_HEADERS_MOC}
+		${DSView_FORMS_HEADERS}
+		${DSView_RESOURCES_RCC}
+		${libsigrok4DSL_SOURCES}
+		${libsigrokdecode4DSL_SOURCES}
+	)
+	set_target_properties(${PROJECT_NAME} PROPERTIES
+		MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
+		MACOSX_BUNDLE_GUI_IDENTIFIER com.dreamsourcelab.dsview
+		MACOSX_BUNDLE_ICON_FILE DSView.icns
+	)
+else()
+	add_executable(${PROJECT_NAME}
+		${common_SOURCES}
+		${DSView_SOURCES}
+		${DSView_HEADERS_MOC}
+		${DSView_FORMS_HEADERS}
+		${DSView_RESOURCES_RCC}
+		${libsigrok4DSL_SOURCES}
+		${libsigrokdecode4DSL_SOURCES}
+	)
+endif()
 
 target_link_libraries(${PROJECT_NAME} ${DSVIEW_LINK_LIBS})
 
@@ -663,7 +687,11 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/build.dir")
 #-------------------------------------------------------------------------------
 
 # Install the executable.
-install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+if(APPLE)
+	install(TARGETS ${PROJECT_NAME} BUNDLE DESTINATION .)
+else()
+	install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+endif()
 install(DIRECTORY DSView/res DESTINATION share/DSView)
 install(DIRECTORY DSView/demo DESTINATION share/DSView)
 install(FILES DSView/icons/logo.svg DESTINATION share/DSView RENAME logo.svg)
@@ -671,15 +699,8 @@ install(FILES DSView/icons/logo.svg DESTINATION share/icons/hicolor/scalable/app
 install(FILES DSView/icons/logo.svg DESTINATION share/pixmaps RENAME dsview.svg)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")	
-	install(FILES DSView/DSView.desktop DESTINATION /usr/share/applications RENAME dsview.desktop)
-	
-	if(IS_DIRECTORY /usr/lib/udev/rules.d)
-		install(FILES DSView/DreamSourceLab.rules DESTINATION /usr/lib/udev/rules.d RENAME 60-dreamsourcelab.rules)
-	elseif(IS_DIRECTORY /lib/udev/rules.d)
-		install(FILES DSView/DreamSourceLab.rules DESTINATION /lib/udev/rules.d RENAME 60-dreamsourcelab.rules)
-	elseif(IS_DIRECTORY /etc/udev/rules.d)
-		install(FILES DSView/DreamSourceLab.rules DESTINATION /etc/udev/rules.d RENAME 60-dreamsourcelab.rules)
-	endif()
+	install(FILES DSView/DSView.desktop DESTINATION share/applications RENAME dsview.desktop)
+	install(FILES DSView/DreamSourceLab.rules DESTINATION lib/udev/rules.d RENAME 60-dreamsourcelab.rules)
 
 endif()
 
@@ -716,4 +737,3 @@ if(ENABLE_TESTS)
 	enable_testing()
 	add_test(test ${CMAKE_CURRENT_BINARY_DIR}/DSView/test/DSView-test)
 endif(ENABLE_TESTS)
-
