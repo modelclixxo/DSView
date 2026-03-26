@@ -49,6 +49,18 @@ include(GNUInstallDirs)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake") 
 #list(APPEND CMAKE_PREFIX_PATH "xxx.cmake find path") 
 
+if(WIN32 AND EXISTS "/mingw64")
+	list(APPEND CMAKE_PREFIX_PATH "/mingw64")
+	list(APPEND CMAKE_INCLUDE_PATH "/mingw64/include")
+	list(APPEND CMAKE_LIBRARY_PATH "/mingw64/lib")
+endif()
+
+if(APPLE AND EXISTS "/opt/homebrew")
+	list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew")
+	list(APPEND CMAKE_INCLUDE_PATH "/opt/homebrew/include")
+	list(APPEND CMAKE_LIBRARY_PATH "/opt/homebrew/lib")
+endif()
+
 find_package(PkgConfig)
 
 if(NOT PKG_CONFIG_FOUND)
