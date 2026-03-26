@@ -185,10 +185,13 @@ jobs:
         run: |
           brew_prefix="$(brew --prefix)"
           qt_prefix="$(brew --prefix qt@6)"
+          glib_prefix="$(brew --prefix glib)"
+          libusb_prefix="$(brew --prefix libusb)"
+          fftw_prefix="$(brew --prefix fftw)"
           boost_prefix="$(brew --prefix boost)"
           python_prefix="$(brew --prefix python@3.12)"
           export PATH="${qt_prefix}/bin:${brew_prefix}/bin:$PATH"
-          export PKG_CONFIG_PATH="${brew_prefix}/lib/pkgconfig:${qt_prefix}/lib/pkgconfig"
+          export PKG_CONFIG_PATH="${glib_prefix}/lib/pkgconfig:${libusb_prefix}/lib/pkgconfig:${fftw_prefix}/lib/pkgconfig:${boost_prefix}/lib/pkgconfig:${python_prefix}/lib/pkgconfig:${brew_prefix}/lib/pkgconfig:${qt_prefix}/lib/pkgconfig"
           pkg_config_bin="$(command -v pkg-config)"
           python_bin="${python_prefix}/bin/python3"
           python_include="$("${python_bin}" -c 'import sysconfig; print(sysconfig.get_path("include"))')"
@@ -196,7 +199,7 @@ jobs:
           cmake -S . -B build -G Ninja \
             -DDSVIEW_PREFER_QT6=ON \
             -DDSVIEW_PACKAGE_VERSION_OVERRIDE="${{ steps.meta.outputs.package_version }}" \
-            -DCMAKE_PREFIX_PATH="${qt_prefix};${brew_prefix}" \
+            -DCMAKE_PREFIX_PATH="${qt_prefix};${glib_prefix};${libusb_prefix};${fftw_prefix};${boost_prefix};${python_prefix};${brew_prefix}" \
             -DPKG_CONFIG_EXECUTABLE="${pkg_config_bin}" \
             -DPython3_EXECUTABLE="${python_bin}" \
             -DPython3_ROOT_DIR="${python_prefix}" \
@@ -210,6 +213,18 @@ jobs:
             test -f build/CMakeFiles/CMakeOutput.log && cat build/CMakeFiles/CMakeOutput.log
             exit ${status}
           fi
+
+      - name: Upload configure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: configure-diagnostics-${{ matrix.artifact_name }}-${{ steps.meta.outputs.artifact_version }}
+          path: |
+            configure-*.log
+            build/CMakeFiles/CMakeError.log
+            build/CMakeFiles/CMakeOutput.log
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Build Linux
         if: runner.os == 'Linux'
