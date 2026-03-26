@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+     viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;"
+     xml:space="preserve" width="512px" height="512px">
+<defs>
+  <clipPath id="rounded_it">
+    <path d="M400,0H112C50.144,0,0,50.144,0,112v288c0,61.856,50.144,112,112,112h288c61.856,0,112-50.144,112-112V112
+      C512,50.144,461.856,0,400,0z"/>
+  </clipPath>
+</defs>
+<g clip-path="url(#rounded_it)">
+  <rect x="0" y="0" width="170.667" height="512" style="fill:#15924A;"/>
+  <rect x="170.667" y="0" width="170.667" height="512" style="fill:#F5F5F5;"/>
+  <rect x="341.333" y="0" width="170.667" height="512" style="fill:#D1333A;"/>
+</g>
+</svg>

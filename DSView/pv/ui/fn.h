@@ -51,6 +51,14 @@ namespace ui
 
     void adjust_label_size(QLabel *ctrl, AdjustSizeAction action);
 
+    bool is_wayland_platform();
+
+    bool use_native_window_frame();
+
+    bool allow_translucent_windows();
+
+    Qt::WindowFlags stable_window_flags(Qt::WindowFlags flags);
+
 } // namespace ui
 
 #endif

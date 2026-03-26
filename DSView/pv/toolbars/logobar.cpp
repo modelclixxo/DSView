@@ -51,6 +51,27 @@
 namespace pv {
 namespace toolbars {
 
+namespace {
+
+QString language_icon_resource(int language)
+{
+    switch (language) {
+    case LAN_CN:
+        return QStringLiteral(":/icons/Chinese.svg");
+    case LAN_DE:
+        return QStringLiteral(":/icons/German.svg");
+    case LAN_FR:
+        return QStringLiteral(":/icons/French.svg");
+    case LAN_IT:
+        return QStringLiteral(":/icons/Italian.svg");
+    case LAN_EN:
+    default:
+        return QStringLiteral(":/icons/English.svg");
+    }
+}
+
+} // namespace
+
 LogoBar::LogoBar(SigSession *session, QWidget *parent) :
     QToolBar("File Bar", parent),
     _enable(true),
@@ -70,14 +91,29 @@ LogoBar::LogoBar(SigSession *session, QWidget *parent) :
    
     _action_cn = new QAction(this);
     _action_cn->setObjectName(QString::fromUtf8("actionCn"));
+
+    _action_de = new QAction(this);
+    _action_de->setObjectName(QString::fromUtf8("actionDe"));
+
+    _action_fr = new QAction(this);
+    _action_fr->setObjectName(QString::fromUtf8("actionFr"));
+
+    _action_it = new QAction(this);
+    _action_it->setObjectName(QString::fromUtf8("actionIt"));
     
     _language = new QMenu(this);
     _language->setObjectName(QString::fromUtf8("menuLanguage"));
     _language->addAction(_action_cn);
     _language->addAction(_action_en);
+    _language->addAction(_action_de);
+    _language->addAction(_action_fr);
+    _language->addAction(_action_it);
 
     _action_en->setIcon(QIcon(":/icons/English.svg"));
     _action_cn->setIcon(QIcon(":/icons/Chinese.svg"));
+    _action_de->setIcon(QIcon(":/icons/German.svg"));
+    _action_fr->setIcon(QIcon(":/icons/French.svg"));
+    _action_it->setIcon(QIcon(":/icons/Italian.svg"));
 
     _about = new QAction(this);
     _about->setObjectName(QString::fromUtf8("actionAbout"));
@@ -116,6 +152,9 @@ LogoBar::LogoBar(SigSession *session, QWidget *parent) :
 
     connect(_action_en, SIGNAL(triggered()), this, SLOT(on_actionEn_triggered()));
     connect(_action_cn, SIGNAL(triggered()), this, SLOT(on_actionCn_triggered()));
+    connect(_action_de, &QAction::triggered, this, [this]() { apply_language(LAN_DE); });
+    connect(_action_fr, &QAction::triggered, this, [this]() { apply_language(LAN_FR); });
+    connect(_action_it, &QAction::triggered, this, [this]() { apply_language(LAN_IT); });
     connect(_about, SIGNAL(triggered()), this, SLOT(on_actionAbout_triggered()));
     connect(_manual, SIGNAL(triggered()), this, SIGNAL(sig_open_doc()));
     connect(_issue, SIGNAL(triggered()), this, SLOT(on_actionIssue_triggered()));
@@ -130,24 +169,43 @@ LogoBar::~LogoBar()
     REMOVE_UI(this);
 }
 
+QIcon LogoBar::language_icon(int language) const
+{
+    return QIcon::fromTheme(QStringLiteral("preferences-desktop-locale"),
+        QIcon(language_icon_resource(language)));
+}
+
+void LogoBar::apply_language(int language)
+{
+    update_language_menu_icon();
+    _language->setIcon(language_icon(language));
+
+    assert(_mainForm);
+    _mainForm->switchLanguage(language);
+}
+
+void LogoBar::update_language_menu_icon()
+{
+    _language->setIcon(language_icon(AppConfig::Instance().frameOptions.language));
+}
+
 void LogoBar::retranslateUi()
 {
 
     _logo_button.setText(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP), "Help"));
-     _language->setTitle(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_LANG), "&Language"));
+    _language->setTitle(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_LANG), "&Language"));
     _action_en->setText(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_LANG_EN), "English"));
-    _action_cn->setText(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_LANG_CN), "中文"));   
+    _action_cn->setText(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_LANG_CN), "中文"));
+    _action_de->setText(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_LANG_DE), "Deutsch"));
+    _action_fr->setText(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_LANG_FR), "Français"));
+    _action_it->setText(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_LANG_IT), "Italiano"));
     _about->setText(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_ABOUT), "&About..."));
     _manual->setText(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_MANUAL), "&Manual..."));
     _issue->setText(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_BUG), "&Bug Report"));
     _update->setText(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_UPDATE), "&Update"));
     _log->setText(L_S(STR_PAGE_TOOLBAR, S_ID(IDS_TOOLBAR_HELP_LOG), "L&og Options"));
 
-    AppConfig &app = AppConfig::Instance(); 
-    if (app.frameOptions.language == LAN_CN)
-        _language->setIcon(QIcon(":/icons/Chinese.svg"));
-    else
-        _language->setIcon(QIcon(":/icons/English.svg"));
+    update_language_menu_icon();
 }
 
 void LogoBar::reStyle()
@@ -178,19 +236,12 @@ void LogoBar::dsl_connected(bool conn)
 
 void LogoBar::on_actionEn_triggered()
 {
-    _language->setIcon(QIcon::fromTheme("file",
-        QIcon(":/icons/English.svg")));
-
-    assert(_mainForm);
-    _mainForm->switchLanguage(LAN_EN);
+    apply_language(LAN_EN);
 }
 
 void LogoBar::on_actionCn_triggered()
 {
-    _language->setIcon(QIcon::fromTheme("file",
-        QIcon(":/icons/Chinese.svg")));
-    assert(_mainForm);
-    _mainForm->switchLanguage(LAN_CN);  
+    apply_language(LAN_CN);
 }
 
 void LogoBar::on_actionAbout_triggered()

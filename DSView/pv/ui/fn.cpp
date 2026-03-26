@@ -35,6 +35,7 @@
 #include <QCheckBox>
 #include <QDebug>
 #include <QFontMetrics>
+#include <QGuiApplication>
 
 #include "../config/appconfig.h"
 #include "../ui/xtoolbutton.h"
@@ -169,6 +170,48 @@ namespace ui
             ctrl->setFixedHeight(sz.height() + 5);
             ctrl->setFixedWidth(sz.width() + 5);
         }
+    }
+
+    bool is_wayland_platform()
+    {
+#if defined(Q_OS_LINUX)
+        const QString platform = QGuiApplication::platformName();
+        if (!platform.isEmpty()){
+            return platform.contains(QStringLiteral("wayland"), Qt::CaseInsensitive);
+        }
+
+        const QByteArray sessionType = qgetenv("XDG_SESSION_TYPE").trimmed().toLower();
+        if (sessionType == "wayland"){
+            return true;
+        }
+
+        return !qgetenv("WAYLAND_DISPLAY").isEmpty();
+#else
+        return false;
+#endif
+    }
+
+    bool use_native_window_frame()
+    {
+        return is_wayland_platform();
+    }
+
+    bool allow_translucent_windows()
+    {
+        return !use_native_window_frame();
+    }
+
+    Qt::WindowFlags stable_window_flags(Qt::WindowFlags flags)
+    {
+        if (!use_native_window_frame()){
+            return flags;
+        }
+
+        if (!(flags & Qt::Popup)){
+            flags &= ~Qt::FramelessWindowHint;
+        }
+
+        return flags;
     }
 
 } // namespace ui

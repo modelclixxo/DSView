@@ -212,14 +212,27 @@ static void _loadFrame(FrameOptions &o, QSettings &st)
     o.windowState = st.value("windowState", QByteArray()).toByteArray();
     st.endGroup();
 
-    if (o.language == -1 || (o.language != LAN_CN && o.language != LAN_EN)){
+    if (o.language == -1 || !IsSupportedLanguage(o.language)){
         //get local language
         QLocale locale;
 
-        if (QLocale::languageToString(locale.language()) == "Chinese")
-            o.language = LAN_CN;            
-        else
-            o.language = LAN_EN; 
+        switch (locale.language()) {
+        case QLocale::Chinese:
+            o.language = LAN_CN;
+            break;
+        case QLocale::German:
+            o.language = LAN_DE;
+            break;
+        case QLocale::French:
+            o.language = LAN_FR;
+            break;
+        case QLocale::Italian:
+            o.language = LAN_IT;
+            break;
+        default:
+            o.language = LAN_EN;
+            break;
+        }
     }
 }
 
@@ -531,16 +544,32 @@ QString GetDecodeScriptDir()
     // ./decoders
     if (dir1.exists(path))
     {
-         return path;     QColor GetStyleColor();
+         return path;
     }
 
-    QDir dir(QCoreApplication::applicationDirPath());
-    // ../share/libsigrokdecode4DSL/decoders
-    if (dir.cd("..") && dir.cd("share") && dir.cd("libsigrokdecode4DSL") && dir.cd("decoders"))
+    const QString appDirPath = QCoreApplication::applicationDirPath();
+
+    QDir appDir(appDirPath);
+
+    // ./decoders next to the executable
+    if (appDir.cd("decoders"))
     {
-         return dir.absolutePath();        
+         return appDir.absolutePath();
     }
-    dsv_info("ERROR: the decoder directory is not exists: ../share/libsigrokdecode4DSL/decoders");
+
+    QDir repoDir(appDirPath);
+    // ../libsigrokdecode4DSL/decoders when running from the source/build tree
+    if (repoDir.cd("..") && repoDir.cd("libsigrokdecode4DSL") && repoDir.cd("decoders"))
+    {
+         return repoDir.absolutePath();
+    }
+
+    QDir shareDir(appDirPath);
+    // ../share/libsigrokdecode4DSL/decoders in installed layouts
+    if (shareDir.cd("..") && shareDir.cd("share") && shareDir.cd("libsigrokdecode4DSL") && shareDir.cd("decoders"))
+    {
+         return shareDir.absolutePath();        
+    }
     return "";
 }
 

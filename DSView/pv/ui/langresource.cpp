@@ -24,7 +24,9 @@
 #include "../log.h"
 #include "../config/appconfig.h"
 #include <QFile>
+#include <QDir>
 #include <QByteArray>
+#include <QCoreApplication>
 #include <QJsonParseError>
 #include <QJsonValue>
 #include <QJsonArray>
@@ -148,7 +150,17 @@ void LangResource::load_page(Lang_resource_page &p)
     QStringList files = fileNmae.split(",");
         
     for (int x=0; x<files.count(); x++){
-        QString file = GetAppDataDir() + "/lang/" + QString(lan_name) + "/" + files[x].trimmed();
+        const QString relativePath = QString(lan_name) + "/" + files[x].trimmed();
+        QString file = GetAppDataDir() + "/lang/" + relativePath;
+        if (!QFile::exists(file)) {
+            QDir repoDir(QCoreApplication::applicationDirPath());
+            if (repoDir.cd("..")) {
+                const QString fallback = repoDir.absoluteFilePath("lang/" + relativePath);
+                if (QFile::exists(fallback)) {
+                    file = fallback;
+                }
+            }
+        }
         load_page(p, file);
     }
 }

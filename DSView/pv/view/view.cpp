@@ -856,8 +856,13 @@ bool View::eventFilter(QObject *object, QEvent *event)
                 _hover_point = QPoint(integer_x, mouse_event->pos().y());
             else
                 _hover_point = mouse_event->pos();
-        } else if (object == _header)
+        } else if (object == _header) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+			_hover_point = QPoint(0, mouse_event->position().toPoint().y());
+#else
 			_hover_point = QPoint(0, mouse_event->y());
+#endif
+        }
 		else
 			_hover_point = QPoint(-1, -1);
 
@@ -1046,6 +1051,7 @@ void View::make_cursors_order()
 
 void View::add_cursor(QColor color, uint64_t sampleIndex)
 {
+    (void)color;
     Cursor *newCursor = new Cursor(*this, -1, sampleIndex);
     get_cursorList().push_back(newCursor);
     make_cursors_order();

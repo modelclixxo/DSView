@@ -28,14 +28,13 @@
 #include <QLabel>
 #include <QFormLayout>
 #include <QSlider>
-#include <vector> 
+#include <list> 
 #include <QKeyEvent>
 #include "../toolbars/titlebar.h"
 #include "dsdialog.h"
 #include "../ui/uimanager.h"
 
 class DeviceAgent;
-struct sr_channel;
 
 namespace pv {
 
@@ -44,20 +43,6 @@ namespace dialogs {
 class Calibration : public DSDialog, public IUiWindow
 {
 	Q_OBJECT
-
-    struct ui_param_info
-    {
-        QLabel *lable;
-        QSlider *slider;
-    };
-
-    struct channel_param_widget
-    {
-        ui_param_info gain;
-        ui_param_info off;
-        ui_param_info comp;
-        sr_channel *probe;
-    };
 
 public:
     Calibration(QWidget *parent);
@@ -79,7 +64,6 @@ private:
     void UpdateFont() override;
 
     void updateLangText();
-    void BuildUI();
 
 private slots:
     void set_value(int value);
@@ -94,10 +78,10 @@ private:
     QPushButton *_reset_btn;
     QPushButton *_exit_btn;
     QFormLayout *_flayout;
-    std::vector<channel_param_widget> _params;
+    std::list <QSlider *> _slider_list;
+    std::list<QLabel *> _label_list;
 
     DeviceAgent *_device_agent;
-    bool    _is_setting;
 };
 
 } // namespace dialogs

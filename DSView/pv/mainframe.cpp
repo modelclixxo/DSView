@@ -53,6 +53,7 @@
 
 #include "dsvdef.h"
 #include "config/appconfig.h"
+#include "ui/fn.h"
 #include "ui/msgbox.h"
 #include "appcontrol.h"
 #include "ui/langresource.h"
@@ -67,6 +68,20 @@
 
 namespace pv {
 
+namespace {
+
+bool prefer_native_wayland_frame()
+{
+    const QByteArray value = qgetenv("DSVIEW_WAYLAND_NATIVE_FRAME").trimmed().toLower();
+    if (value.isEmpty()) {
+        return true;
+    }
+
+    return !(value == "0" || value == "false" || value == "no");
+}
+
+}
+
 MainFrame::MainFrame()
 {
     _layout = NULL;
@@ -76,6 +91,7 @@ MainFrame::MainFrame()
     _titleBar = NULL;
     _mainWindow = NULL;
     _is_win32_parent_window = false;
+    _use_native_window_frame = false;
     _is_resize_ready = false;   
     _parentNativeWidget = NULL;
     _mainWindow = NULL; 
@@ -100,8 +116,21 @@ MainFrame::MainFrame()
     _taskBtn = NULL;
     isWin32 = true;
 #else
-    setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
-    setAttribute(Qt::WA_TranslucentBackground);
+    const bool wayland = ui::is_wayland_platform();
+    _use_native_window_frame = ui::use_native_window_frame();
+    if (wayland) {
+        _use_native_window_frame = prefer_native_wayland_frame();
+    }
+
+    if (_use_native_window_frame) {
+        setWindowFlags(Qt::Window | Qt::WindowSystemMenuHint |
+                       Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
+    } else {
+        setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
+        if (!wayland && ui::allow_translucent_windows()){
+            setAttribute(Qt::WA_TranslucentBackground);
+        }
+    }
     _is_win32_parent_window = false;
 #endif
  
@@ -124,6 +153,11 @@ MainFrame::MainFrame()
     _mainWindow = new MainWindow(_titleBar, this);
     _mainWindow->setWindowFlags(Qt::Widget);
 
+    if (_use_native_window_frame) {
+        _titleBar->hide();
+        _titleBar->EnableAbleDrag(false);
+    }
+
     QVBoxLayout *vbox = new QVBoxLayout();
     vbox->setContentsMargins(0,0,0,0);
     vbox->setSpacing(0);
@@ -135,7 +169,7 @@ MainFrame::MainFrame()
     _layout->setContentsMargins(0,0,0,0);
  
 
-    if (!isWin32 || !_is_win32_parent_window)
+    if ((!isWin32 || !_is_win32_parent_window) && !_use_native_window_frame)
     {
         _top_left = new widgets::Border (TopLeft, this);
         _top_left->setFixedSize(Margin, Margin);
@@ -251,7 +285,7 @@ void MainFrame::OnParentNativeEvent(ParentNativeEvent msg)
 
 void MainFrame::OnParentNaitveWindowEvent(int msg)
 {
- 
+    (void)msg;
 #ifdef _WIN32
     if (_parentNativeWidget != NULL 
             && msg == PARENT_EVENT_DISPLAY_CHANGED){
@@ -408,10 +442,6 @@ bool MainFrame::eventFilter(QObject *object, QEvent *event)
 { 
     const QEvent::Type type = event->type();
     const QMouseEvent *const mouse_event = (QMouseEvent*)event;
-    int newWidth = 0;
-    int newHeight = 0;
-    int newLeft = 0;
-    int newTop = 0;
 
 #ifdef _WIN32 
     if (_parentNativeWidget != NULL){
@@ -468,7 +498,11 @@ bool MainFrame::eventFilter(QObject *object, QEvent *event)
  
         QPoint pt;
         int k = 1;
-        pt = mouse_event->globalPos(); 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        pt = mouse_event->globalPosition().toPoint();
+#else
+        pt = mouse_event->globalPos();
+#endif
 
         int datX = pt.x() - _clickPos.x();
         int datY = pt.y() - _clickPos.y();
@@ -567,18 +601,54 @@ bool MainFrame::eventFilter(QObject *object, QEvent *event)
         }
     }
     else if (type == QEvent::MouseButtonPress) {
-        if (mouse_event->button() == Qt::LeftButton) 
-        if (_hit_border != None)
-            _bDraging = true;
-        _timer.start(50); 
+        if (mouse_event->button() == Qt::LeftButton) {
+            if (_hit_border != None) {
+                // On Wayland the compositor owns resizing. Request a system resize
+                // so grabbing the client-side border works as expected.
+                const QString platform = QGuiApplication::platformName();
+                const bool useSystemResize = platform.contains(QStringLiteral("wayland"), Qt::CaseInsensitive);
+                if (useSystemResize) {
+                    Qt::Edges edges;
+                    switch (_hit_border) {
+                        case TopLeft: edges = Qt::TopEdge | Qt::LeftEdge; break;
+                        case TopRight: edges = Qt::TopEdge | Qt::RightEdge; break;
+                        case BottomLeft: edges = Qt::BottomEdge | Qt::LeftEdge; break;
+                        case BottomRight: edges = Qt::BottomEdge | Qt::RightEdge; break;
+                        case Top: edges = Qt::TopEdge; break;
+                        case Bottom: edges = Qt::BottomEdge; break;
+                        case Left: edges = Qt::LeftEdge; break;
+                        case Right: edges = Qt::RightEdge; break;
+                        default: edges = Qt::Edges(); break;
+                    }
 
-        _clickPos = mouse_event->globalPos();
-        _dragStartRegion = GetFormRegion();
-    } 
+                    if (edges != Qt::Edges()) {
+                        if (QWindow *win = window()->windowHandle()) {
+                            win->startSystemResize(edges);
+                            event->accept();
+                            return true;
+                        }
+                    }
+                }
+
+                _bDraging = true;
+            }
+            _timer.start(50); 
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            _clickPos = mouse_event->globalPosition().toPoint();
+#else
+            _clickPos = mouse_event->globalPos();
+#endif
+            _dragStartRegion = GetFormRegion();
+        }
+    }
     else if (type == QEvent::MouseButtonRelease) {
         if (mouse_event->button() == Qt::LeftButton) {         
             _bDraging = false;
             _timer.stop(); 
+            // Ensure the cursor resets after system resize/move completes.
+            _hit_border = None;
+            setCursor(Qt::ArrowCursor);
         }
     }
     else if (!_bDraging && type == QEvent::Leave) {
@@ -674,7 +744,9 @@ void MainFrame::ShowFormInit()
 #endif
 
     if (_initWndInfo.isMaxSize){
-        move(x, y);
+        if (!_use_native_window_frame){
+            move(x, y);
+        }
         if (isWin32 &&_is_win32_parent_window){
             resize(w, h);
         }
@@ -683,7 +755,9 @@ void MainFrame::ShowFormInit()
         }      
     }
     else{
-        move(x, y);
+        if (!_use_native_window_frame){
+            move(x, y);
+        }
         resize(w, h);
     }
 
@@ -1064,12 +1138,15 @@ void MainFrame::show_doc()
         if (!QFile::exists(path)){
             path = ":/icons/showDoc"+QString::number(lan)+".png";
         }
+        if (!QFile::exists(path)){
+            path = ":/icons/showDoc" + QString::number(LAN_EN) + ".png";
+        }
 
         QLabel tipsLabel;
         tipsLabel.setPixmap(path);
 
         QMessageBox msg;
-        msg.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
+        msg.setWindowFlags(ui::stable_window_flags(Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowSystemMenuHint));
         msg.setContentsMargins(0, 0, 0, 0);
        
         QPushButton *noMoreButton = msg.addButton(L_S(STR_PAGE_MSG, S_ID(IDS_MSG_NOT_SHOW_AGAIN), "Not Show Again"), QMessageBox::ActionRole);
@@ -1106,9 +1183,14 @@ QWidget* MainFrame::GetBodyView()
     return _mainWindow->GetBodyView();
 }
 
-#ifdef _WIN32
-bool MainFrame::nativeEvent(const QByteArray &eventType, void *message, MESSAGE_RESULT_PTR result)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+bool MainFrame::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
+#else
+bool MainFrame::nativeEvent(const QByteArray &eventType, void *message, long *result)
+#endif
 {
+#ifdef _WIN32
+
     if (_parentNativeWidget != NULL)
     { 
         MSG *msg = static_cast<MSG*>(message);
@@ -1128,9 +1210,10 @@ bool MainFrame::nativeEvent(const QByteArray &eventType, void *message, MESSAGE_
             }           
         }
     } 
+    
+#endif
  
     return QWidget::nativeEvent(eventType, message, result);
 }
-#endif
 
 } // namespace pv

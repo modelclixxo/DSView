@@ -260,7 +260,8 @@ void DeviceOptions::bind_samplerate(const QString &name, const QString label,
 
 QString DeviceOptions::print_samplerate(GVariant *const gvar)
 {
-	char *const s = sr_samplerate_string(g_variant_get_uint64(gvar));
+	char *const s = sr_samplerate_string(
+		g_variant_get_uint64(gvar));
 	const QString qstring(s);
 	g_free(s);
 	return qstring;
@@ -292,20 +293,14 @@ QString DeviceOptions::print_timebase(GVariant *const gvar)
 {
 	uint64_t p, q;
 	g_variant_get(gvar, "(tt)", &p, &q);
-	char *pstr = sr_period_string(p * q);
-	QString qstr(pstr);
-	g_free(pstr);
-	return qstr;
+	return QString(sr_period_string(p * q));
 }
 
 QString DeviceOptions::print_vdiv(GVariant *const gvar)
 {
 	uint64_t p, q;
 	g_variant_get(gvar, "(tt)", &p, &q);
-	char *pstr = sr_voltage_string(p, q);
-	QString qstr(pstr);
-	g_free(pstr);
-	return qstr;
+	return QString(sr_voltage_string(p, q));
 }
 
 void DeviceOptions::bind_bandwidths(const QString &name, const QString label, int key,

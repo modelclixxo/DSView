@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <QTimer>
 #include <QGuiApplication>
+#include <QWindow>
 
 #include "../config/appconfig.h"
 #include "../appcontrol.h"
@@ -218,6 +219,19 @@ void TitleBar::mousePressEvent(QMouseEvent* event)
 
     if(event->button() == Qt::LeftButton && ableMove && _is_able_drag) 
     {
+        // On Wayland the compositor owns window movement. Use the platform API
+        // instead of manually moving the top-level widget, so dragging works
+        // with the custom (frameless) title bar.
+        const QString platform = QGuiApplication::platformName();
+        const bool useSystemMove = platform.contains(QStringLiteral("wayland"), Qt::CaseInsensitive);
+        if (useSystemMove) {
+            if (QWindow *win = _parent ? _parent->windowHandle() : window()->windowHandle()) {
+                win->startSystemMove();
+                event->accept();
+                return;
+            }
+        }
+
         int x = event->pos().x();
         int y = event->pos().y(); 
         
@@ -227,7 +241,11 @@ void TitleBar::mousePressEvent(QMouseEvent* event)
         if (!bTopWidow || bClick ){
             _is_draging = true;             
 
-            _clickPos = event->globalPos(); 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            _clickPos = event->globalPosition().toPoint();
+#else
+            _clickPos = event->globalPos();
+#endif
 
             if (_titleParent != NULL){
                 _oldPos = _titleParent->GetParentPos();
@@ -252,8 +270,13 @@ void TitleBar::mouseMoveEvent(QMouseEvent *event)
         int datX = 0;
         int datY = 0;
 
-        datX = (event->globalPos().x() - _clickPos.x());
-        datY = (event->globalPos().y() - _clickPos.y());
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        const QPoint globalPos = event->globalPosition().toPoint();
+#else
+        const QPoint globalPos = event->globalPos();
+#endif
+        datX = (globalPos.x() - _clickPos.x());
+        datY = (globalPos.y() - _clickPos.y());
 
         int x = _oldPos.x() + datX;
         int y = _oldPos.y() + datY;
@@ -312,6 +335,10 @@ void TitleBar::mouseReleaseEvent(QMouseEvent* event)
     }
     _moving = false;
     _is_draging = false;
+    unsetCursor();
+    if (_parent) {
+        _parent->unsetCursor();
+    }
     QWidget::mouseReleaseEvent(event);
 }
 

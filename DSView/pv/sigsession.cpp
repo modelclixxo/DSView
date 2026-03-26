@@ -103,8 +103,6 @@ namespace pv
         _decoder_pannel = NULL;
         _is_triged = false;
         _dso_status_valid = false;
-        _is_task_end = false;
-        _capture_work_time = 0;
 
         _data_list.push_back(new SessionData());
         _data_list.push_back(new SessionData());
@@ -206,7 +204,7 @@ namespace pv
         struct ds_device_base_info *dev = (array + count - 1);
         ds_device_handle dev_handle = dev->handle;
 
-        g_free(array);
+        free(array);
 
         if (set_device(dev_handle))
         {
@@ -258,53 +256,42 @@ namespace pv
         // The current device changed.
         _callback->trigger_message(DSV_MSG_CURRENT_DEVICE_CHANGED);
 
-        int lastError = ds_get_last_error();
-        bool ret = true;
-
-        switch (lastError)
+        if (ds_get_last_error() == SR_ERR_DEVICE_FIRMWARE_VERSION_LOW)
         {
-            case SR_ERR_DEVICE_FIRMWARE_VERSION_LOW:{
-                QString strMsg = L_S(STR_PAGE_MSG, S_ID(IDS_MSG_TO_RECONNECT_FOR_FIRMWARE), 
-                        "Please reconnect the device!");
-                _callback->delay_prop_msg(strMsg);
-                ret = false;
-                break;
-            }
-            case SR_ERR_FIRMWARE_NOT_EXIST:{
-                QString strMsg = L_S(STR_PAGE_MSG, S_ID(IDS_MSG_FIRMWARE_NOT_EXIST), 
-                    "Firmware not exist!");
-                _callback->delay_prop_msg(strMsg);
-                ret = false;
-                break;
-            }
-            case SR_ERR_DEVICE_USB_IO_ERROR:{
-                QString strMsg = L_S(STR_PAGE_MSG, S_ID(IDS_MSG_DEVICE_USB_IO_ERROR), 
-                    "USB io error!");
-                _callback->delay_prop_msg(strMsg);
-                ret = false;
-                break;
-            }
-            case SR_ERR_DEVICE_IS_EXCLUSIVE:{
-                QString strMsg = L_S(STR_PAGE_MSG, S_ID(IDS_MSG_DEVICE_BUSY_SWITCH_FAILED), 
-                        "Device is busy!");
-                if (old_dev != NULL_HANDLE)
-                    MsgBox::Show(strMsg);
-                else
-                    _callback->delay_prop_msg(strMsg);
-                ret = false;
-                break;
-            }
-            case SR_ERR_DEVICE_NO_DRIVER:
-            {
-                QString strMsg = L_S(STR_PAGE_MSG, S_ID(IDS_MSG_DEVICE_NO_DRIVER), 
-                    "No driver!");
-                _callback->delay_prop_msg(strMsg);
-                ret = false;
-                break;
-            }
+            QString strMsg = L_S(STR_PAGE_MSG, S_ID(IDS_MSG_TO_RECONNECT_FOR_FIRMWARE), 
+                    "Please reconnect the device!");
+            _callback->delay_prop_msg(strMsg);
+            return false;
         }
 
-        return ret;
+        if (ds_get_last_error() == SR_ERR_FIRMWARE_NOT_EXIST)
+        {
+            QString strMsg = L_S(STR_PAGE_MSG, S_ID(IDS_MSG_FIRMWARE_NOT_EXIST), 
+                    "Firmware not exist!");
+            _callback->delay_prop_msg(strMsg);
+            return false;
+        }
+
+        if (ds_get_last_error() == SR_ERR_DEVICE_USB_IO_ERROR)
+        {
+            QString strMsg = L_S(STR_PAGE_MSG, S_ID(IDS_MSG_DEVICE_USB_IO_ERROR), 
+                    "USB io error!");
+            _callback->delay_prop_msg(strMsg);
+            return false;
+        }
+
+        if (ds_get_last_error() == SR_ERR_DEVICE_IS_EXCLUSIVE)
+        {
+            QString strMsg = L_S(STR_PAGE_MSG, S_ID(IDS_MSG_DEVICE_BUSY_SWITCH_FAILED), 
+                        "Device is busy!");
+            if (old_dev != NULL_HANDLE)
+                MsgBox::Show(strMsg);
+            else
+                _callback->delay_prop_msg(strMsg);
+            return false;
+        }
+
+        return true;
     }
 
     bool SigSession::set_file(QString name)
@@ -720,8 +707,6 @@ namespace pv
         }
 
         capture_init();
-
-        _is_task_end = false;
 
         if (_device_agent.start() == false){
             dsv_err("Start collect error!");
@@ -1430,19 +1415,16 @@ namespace pv
 
         case SR_DF_LOGIC:
             assert(packet->payload);
-            assert(!_is_task_end);
             feed_in_logic(*(const sr_datafeed_logic *)packet->payload);
             break;
 
         case SR_DF_DSO:
             assert(packet->payload);
-            assert(!_is_task_end);
             feed_in_dso(*(const sr_datafeed_dso *)packet->payload);
             break;
 
         case SR_DF_ANALOG:
             assert(packet->payload);
-            assert(!_is_task_end);
             feed_in_analog(*(const sr_datafeed_analog *)packet->payload);
             break;
 
@@ -1462,7 +1444,6 @@ namespace pv
             _capture_data->get_logic()->capture_ended();
             _capture_data->get_dso()->capture_ended();
             _capture_data->get_analog()->capture_ended();
-            _is_task_end = true;
 
             if (packet->status != SR_PKT_OK)
             {
@@ -1475,14 +1456,6 @@ namespace pv
 
                 // Post a message to start all decode tasks.
                 if (mode == LOGIC){
-                    auto logic_data = _capture_data->get_logic();
-                    if (is_loop_mode() && logic_data->get_loop_offset() > 0){
-                        uint64_t milliseconds = _capture_work_time / 1000000;
-                        QDateTime sessionTime = QDateTime::currentDateTime();
-                        sessionTime = sessionTime.addMSecs(-milliseconds);
-                        set_session_time(sessionTime);
-                    }
-
                     _callback->trigger_message(DSV_MSG_REV_END_PACKET);
                 }
                 else{
@@ -1708,15 +1681,7 @@ namespace pv
     {
         auto trace = get_decoder_trace(index);
 
-        if (trace == NULL){
-            return;
-        }
-
-        if (!trace->create_popup(false)){
-            return;
-        }
-
-        if (have_view_data() && !is_working())
+        if (trace && trace->create_popup(false))
         {
             remove_decode_task(trace); // remove old task
             trace->decoder()->clear();
@@ -1896,7 +1861,8 @@ namespace pv
         std::lock_guard<std::mutex> lock(_decode_task_mutex);
         _decode_tasks.push_back(trace);
 
-        if (!_is_decoding){
+        if (!_is_decoding)
+        {
             if (_decode_thread.joinable())
                 _decode_thread.join();
 
@@ -2604,19 +2570,6 @@ namespace pv
     void SigSession::apply_samplerate()
     {
         on_load_config_end();
-    }
-
-    void SigSession::ProcessPowerEvent(bool bEnterSleep)
-    {
-        if (bEnterSleep){
-            if (_is_working && _device_agent.is_hardware()){
-                stop_capture();
-            }
-            ds_close_all_device();
-        }
-        else{
-            ds_reload_device_list();
-        }
     }
 
 } // namespace pv

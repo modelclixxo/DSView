@@ -302,7 +302,7 @@
     {
         "id": "IDS_DLG_EXPORTING",
         "text": "导出中..."
-    },  
+    },
     {
         "id": "IDS_DLG_DONT_CONNECT_PROBES",
         "text": "不要连接任何探头!"
@@ -490,7 +490,7 @@
     {
         "id": "IDS_DLG_SERIAL_TRIGGER",
         "text": "串行触发"
-    },   
+    },
     {
         "id": "IDS_DLG_STAGE_TRIGGER",
         "text": "多级触发"
@@ -498,7 +498,7 @@
     {
         "id": "IDS_DLG_SERIAL_NOTE_LABEL",
         "text": "X: 不关心\n0: 低电平\n1: 高电平\nR: 上升沿\nF: 下降沿\nC: 上升/下降沿"
-    },  
+    },
     {
         "id": "IDS_DLG_DATA_BITS",
         "text": "数据位"
@@ -606,7 +606,7 @@
     {
         "id": "IDS_DLG_FALLING",
         "text": "下降沿: "
-    },   
+    },
     {
         "id": "IDS_DLG_Edges_1",
         "text": "总边沿: "
@@ -790,5 +790,41 @@
     {
         "id": "IDS_FFT_MODE_LINEARRSM",
         "text": "线性 RMS"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_WEBSITE",
+        "text": "网站"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_GITHUB",
+        "text": "GitHub"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_COPYRIGHT",
+        "text": "版权"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_COPYRIGHT_TEXT",
+        "text": "© DreamSourceLab. 保留所有权利。"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_SPECIAL_THANKS",
+        "text": "特别鸣谢"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_KICKSTARTER",
+        "text": "所有 Kickstarter 支持者"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_SIGROK",
+        "text": "所有 Sigrok 项目成员"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_OPEN_SOURCE",
+        "text": "所有开源项目贡献者"
+    },
+    {
+        "id": "IDS_DLG_ABOUT_CHANGELOGS",
+        "text": "更新日志"
     }
 ]
