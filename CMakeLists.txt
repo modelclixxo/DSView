@@ -716,6 +716,10 @@ install(DIRECTORY lang DESTINATION share/DSView)
 #= Packaging (handled by CPack)
 #-------------------------------------------------------------------------------
 
+set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
+set(CPACK_PACKAGE_VENDOR "DreamSourceLab")
+set(CPACK_PACKAGE_CONTACT "DSView Packaging <noreply@github.com>")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/modelclixxo/DSView")
 set(CPACK_PACKAGE_VERSION_MAJOR ${DS_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${DS_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${DS_VERSION_MICRO})
@@ -725,6 +729,18 @@ set(CPACK_SOURCE_IGNORE_FILES ${CMAKE_CURRENT_BINARY_DIR} ".gitignore" ".git")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME
 	"${CMAKE_PROJECT_NAME}-${DS_VERSION_MAJOR}.${DS_VERSION_MINOR}.${DS_VERSION_MICRO}")
 set(CPACK_SOURCE_GENERATOR "TGZ")
+
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+	set(CPACK_GENERATOR "DEB;TGZ")
+	set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+	set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+	set(CPACK_DEBIAN_PACKAGE_MAINTAINER "DSView Packaging")
+	set(CPACK_DEBIAN_PACKAGE_SECTION "electronics")
+	set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+	set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+	set(CPACK_DEBIAN_PACKAGE_DESCRIPTION
+		"DSView is a GUI application for DreamSourceLab USB instruments including logic analyzers and oscilloscopes.")
+endif()
 
 include(CPack)
 

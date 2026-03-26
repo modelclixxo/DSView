@@ -149,10 +149,10 @@ jobs:
           set -euo pipefail
           version="${{ steps.meta.outputs.version }}"
           stage="${RUNNER_TEMP}/stage"
-          package_root="${RUNNER_TEMP}/DSView-${version}-${{ matrix.archive_name }}"
-          mkdir -p "${stage}" "${package_root}" dist
+          mkdir -p "${stage}" dist
           cmake --install build --prefix "${stage}/usr"
           tar -C "${stage}" -czf "dist/DSView-${version}-${{ matrix.archive_name }}.tar.gz" usr
+          cpack --config build/CPackConfig.cmake -G DEB -B dist
 
       - name: Package Windows
         if: runner.os == 'Windows'
