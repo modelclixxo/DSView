@@ -51,6 +51,8 @@ else (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
     NAMES
 	    libusb.h
     PATHS
+      /mingw64/include
+      /clang64/include
       /usr/local/include
       /opt/local/include
       /usr/include
@@ -61,8 +63,10 @@ else (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
 
   find_library(LIBUSB_1_LIBRARY
     NAMES
-      usb-1.0 usb
+      usb-1.0 libusb-1.0 usb
     PATHS
+      /mingw64/lib
+      /clang64/lib
       /usr/local/lib64
       /opt/local/lib64
       /usr/lib64
