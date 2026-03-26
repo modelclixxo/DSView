@@ -146,17 +146,30 @@ jobs:
           set -euo pipefail
           export PATH="/mingw64/bin:${PATH}"
           export PKG_CONFIG_PATH="/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig"
-          export PKG_CONFIG_EXECUTABLE="/mingw64/bin/pkg-config"
           export CMAKE_PREFIX_PATH="/mingw64"
           export Python3_ROOT_DIR="/mingw64"
           export Boost_ROOT="/mingw64"
-          /mingw64/bin/cmake -S . -B build -G Ninja \
+          cmake_bin="$(command -v cmake)"
+          pkg_config_bin="$(command -v pkg-config || command -v pkgconf)"
+          python_bin="$(command -v python3 || command -v python)"
+          echo "cmake=${cmake_bin}"
+          echo "pkg-config=${pkg_config_bin}"
+          echo "python=${python_bin}"
+          "${cmake_bin}" -S . -B build -G Ninja \
             -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" \
-            -DPKG_CONFIG_EXECUTABLE="${PKG_CONFIG_EXECUTABLE}" \
+            -DPKG_CONFIG_EXECUTABLE="${pkg_config_bin}" \
+            -DPython3_EXECUTABLE="${python_bin}" \
             -DPython3_ROOT_DIR="${Python3_ROOT_DIR}" \
             -DBoost_ROOT="${Boost_ROOT}" \
             -DDSVIEW_PREFER_QT6=ON \
-            -DDSVIEW_PACKAGE_VERSION_OVERRIDE="${{ steps.meta.outputs.package_version }}"
+            -DDSVIEW_PACKAGE_VERSION_OVERRIDE="${{ steps.meta.outputs.package_version }}" \
+            2>&1 | tee configure-windows.log
+          status=${PIPESTATUS[0]}
+          if [[ ${status} -ne 0 ]]; then
+            test -f build/CMakeFiles/CMakeError.log && cat build/CMakeFiles/CMakeError.log
+            test -f build/CMakeFiles/CMakeOutput.log && cat build/CMakeFiles/CMakeOutput.log
+            exit ${status}
+          fi
 
       - name: Configure macOS
         if: runner.os == 'macOS'
@@ -166,11 +179,19 @@ jobs:
           qt_prefix="$(brew --prefix qt@6)"
           export PATH="${qt_prefix}/bin:${brew_prefix}/bin:$PATH"
           export PKG_CONFIG_PATH="${brew_prefix}/lib/pkgconfig:${qt_prefix}/lib/pkgconfig"
+          pkg_config_bin="$(command -v pkg-config)"
           cmake -S . -B build -G Ninja \
             -DDSVIEW_PREFER_QT6=ON \
             -DDSVIEW_PACKAGE_VERSION_OVERRIDE="${{ steps.meta.outputs.package_version }}" \
             -DCMAKE_PREFIX_PATH="${qt_prefix};${brew_prefix}" \
-            -DPKG_CONFIG_EXECUTABLE="${brew_prefix}/bin/pkg-config"
+            -DPKG_CONFIG_EXECUTABLE="${pkg_config_bin}" \
+            2>&1 | tee configure-macos.log
+          status=${PIPESTATUS[0]}
+          if [[ ${status} -ne 0 ]]; then
+            test -f build/CMakeFiles/CMakeError.log && cat build/CMakeFiles/CMakeError.log
+            test -f build/CMakeFiles/CMakeOutput.log && cat build/CMakeFiles/CMakeOutput.log
+            exit ${status}
+          fi
 
       - name: Build Linux
         if: runner.os == 'Linux'
