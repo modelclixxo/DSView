@@ -10,6 +10,31 @@ The sigrok project aims at creating a portable, cross-platform, Free/Libre/Open-
 
 The DSView software is in a usable state and has official tarball releases. However, it is still a work in progress. Some basic functionality is available and working, but other things are always on the TODO list.
 
+This tree is maintained as a `Qt6`-first build and has been updated to run on modern Linux desktops with native `Wayland` support. `Qt5` remains available as a fallback where needed, but the preferred path is now `Qt6`.
+
+## Qt6 and Wayland
+
+- `Qt6` is the default toolkit in the current build system.
+- Native `Wayland` startup is supported and tested on recent Ubuntu GNOME sessions, including Ubuntu `25.10`.
+- `xcb` / `XWayland` remains available as a compatibility fallback.
+- The Linux UI path was adjusted for window decoration, dialog parenting, popup handling, screenshots, and decoder selection under Wayland.
+
+Typical Linux test commands:
+
+```bash
+cmake -S . -B build
+cmake --build build -j4
+
+# Native Wayland
+QT_QPA_PLATFORM=wayland ./build.dir/DSView
+
+# X11 / XWayland fallback
+QT_QPA_PLATFORM=xcb ./build.dir/DSView
+
+# Qt6 smoke test
+bash scripts/qt6-smoke.sh
+```
+
 # Useful links
 
 - [dreamsourcelab.com](https://www.dreamsourcelab.com)
