@@ -144,12 +144,15 @@ jobs:
         shell: msys2 {0}
         run: |
           set -euo pipefail
+          export PATH="/mingw64/bin:${PATH}"
           export PKG_CONFIG_PATH="/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig"
+          export PKG_CONFIG_EXECUTABLE="/mingw64/bin/pkg-config"
           export CMAKE_PREFIX_PATH="/mingw64"
           export Python3_ROOT_DIR="/mingw64"
           export Boost_ROOT="/mingw64"
-          cmake -S . -B build -G Ninja \
+          /mingw64/bin/cmake -S . -B build -G Ninja \
             -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}" \
+            -DPKG_CONFIG_EXECUTABLE="${PKG_CONFIG_EXECUTABLE}" \
             -DPython3_ROOT_DIR="${Python3_ROOT_DIR}" \
             -DBoost_ROOT="${Boost_ROOT}" \
             -DDSVIEW_PREFER_QT6=ON \
@@ -159,8 +162,15 @@ jobs:
         if: runner.os == 'macOS'
         shell: bash
         run: |
-          export PATH="$(brew --prefix qt@6)/bin:$PATH"
-          cmake -S . -B build -G Ninja -DDSVIEW_PREFER_QT6=ON -DDSVIEW_PACKAGE_VERSION_OVERRIDE="${{ steps.meta.outputs.package_version }}" -DCMAKE_PREFIX_PATH="$(brew --prefix qt@6)"
+          brew_prefix="$(brew --prefix)"
+          qt_prefix="$(brew --prefix qt@6)"
+          export PATH="${qt_prefix}/bin:${brew_prefix}/bin:$PATH"
+          export PKG_CONFIG_PATH="${brew_prefix}/lib/pkgconfig:${qt_prefix}/lib/pkgconfig"
+          cmake -S . -B build -G Ninja \
+            -DDSVIEW_PREFER_QT6=ON \
+            -DDSVIEW_PACKAGE_VERSION_OVERRIDE="${{ steps.meta.outputs.package_version }}" \
+            -DCMAKE_PREFIX_PATH="${qt_prefix};${brew_prefix}" \
+            -DPKG_CONFIG_EXECUTABLE="${brew_prefix}/bin/pkg-config"
 
       - name: Build Linux
         if: runner.os == 'Linux'

@@ -11,6 +11,8 @@ FIND_PATH(FFTW_INCLUDE_DIR
   NAMES
     fftw3.h
   PATHS
+    /opt/homebrew/include
+    /opt/homebrew/opt/fftw/include
     /mingw64/include
     /clang64/include
     /usr/local/include
@@ -23,6 +25,8 @@ FIND_LIBRARY(FFTW_LIBRARY
   NAMES
     ${FFTW_NAMES}
   PATHS
+    /opt/homebrew/lib
+    /opt/homebrew/opt/fftw/lib
     /mingw64/lib
     /clang64/lib
     /usr/local/lib64
