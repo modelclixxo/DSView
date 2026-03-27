@@ -49,6 +49,9 @@ moc_*.cpp_parameters
 
 DSView-prj
 build*
+!.github/
+!.github/workflows/
+!.github/workflows/build-release.yml
 share
 .vscode
 qtpro

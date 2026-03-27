@@ -19,7 +19,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-cmake_minimum_required(VERSION 2.8.6)
+cmake_minimum_required(VERSION 3.16)
 
 project(DSView)
 
@@ -48,6 +48,18 @@ include(GNUInstallDirs)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake") 
 #list(APPEND CMAKE_PREFIX_PATH "xxx.cmake find path") 
+
+if(WIN32 AND EXISTS "/mingw64")
+	list(APPEND CMAKE_PREFIX_PATH "/mingw64")
+	list(APPEND CMAKE_INCLUDE_PATH "/mingw64/include")
+	list(APPEND CMAKE_LIBRARY_PATH "/mingw64/lib")
+endif()
+
+if(APPLE AND EXISTS "/opt/homebrew")
+	list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew")
+	list(APPEND CMAKE_INCLUDE_PATH "/opt/homebrew/include")
+	list(APPEND CMAKE_LIBRARY_PATH "/opt/homebrew/lib")
+endif()
 
 find_package(PkgConfig)
 
@@ -558,7 +570,15 @@ if(WIN32)
 	set(CMAKE_RC_COMPILE_OBJECT "${CMAKE_RC_COMPILER} -O coff -I${CMAKE_CURRENT_SOURCE_DIR} <SOURCE> <OBJECT>")
 	enable_language(RC)
 	# app icon
-        list(APPEND DSView_SOURCES applogo.rc)
+        list(APPEND DSView_SOURCES
+            applogo.rc
+            DSView/pv/winnativewidget.cpp
+            DSView/pv/winshadow.cpp
+        )
+        list(APPEND DSView_HEADERS
+            DSView/pv/winnativewidget.h
+            DSView/pv/winshadow.h
+        )
 endif()
 
 if(Qt6Core_FOUND)
@@ -569,6 +589,13 @@ elseif(Qt5Core_FOUND)
 	qt5_wrap_cpp(DSView_HEADERS_MOC ${DSView_HEADERS})
 	qt5_wrap_ui(DSView_FORMS_HEADERS ${DSView_FORMS})
 	qt5_add_resources(DSView_RESOURCES_RCC ${DSView_RESOURCES})
+endif()
+
+if(APPLE)
+	set(DSVIEW_APP_ICON_MACOSX ${CMAKE_CURRENT_SOURCE_DIR}/DSView.icns)
+	set_source_files_properties(${DSVIEW_APP_ICON_MACOSX}
+		PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+	list(APPEND DSView_SOURCES ${DSVIEW_APP_ICON_MACOSX})
 endif()
 
 
@@ -633,15 +660,32 @@ else()
 	list(APPEND DSVIEW_LINK_LIBS ${PKGDEPS_LIBRARIES})
 endif()
 
-add_executable(${PROJECT_NAME}
-	${common_SOURCES}
-	${DSView_SOURCES}
-	${DSView_HEADERS_MOC}
-	${DSView_FORMS_HEADERS}
-	${DSView_RESOURCES_RCC}
-	${libsigrok4DSL_SOURCES}
-	${libsigrokdecode4DSL_SOURCES}
-)
+if(APPLE)
+	add_executable(${PROJECT_NAME} MACOSX_BUNDLE
+		${common_SOURCES}
+		${DSView_SOURCES}
+		${DSView_HEADERS_MOC}
+		${DSView_FORMS_HEADERS}
+		${DSView_RESOURCES_RCC}
+		${libsigrok4DSL_SOURCES}
+		${libsigrokdecode4DSL_SOURCES}
+	)
+	set_target_properties(${PROJECT_NAME} PROPERTIES
+		MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
+		MACOSX_BUNDLE_GUI_IDENTIFIER com.dreamsourcelab.dsview
+		MACOSX_BUNDLE_ICON_FILE DSView.icns
+	)
+else()
+	add_executable(${PROJECT_NAME}
+		${common_SOURCES}
+		${DSView_SOURCES}
+		${DSView_HEADERS_MOC}
+		${DSView_FORMS_HEADERS}
+		${DSView_RESOURCES_RCC}
+		${libsigrok4DSL_SOURCES}
+		${libsigrokdecode4DSL_SOURCES}
+	)
+endif()
 
 target_link_libraries(${PROJECT_NAME} ${DSVIEW_LINK_LIBS})
 
@@ -663,7 +707,11 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/build.dir")
 #-------------------------------------------------------------------------------
 
 # Install the executable.
-install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+if(APPLE)
+	install(TARGETS ${PROJECT_NAME} BUNDLE DESTINATION .)
+else()
+	install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
+endif()
 install(DIRECTORY DSView/res DESTINATION share/DSView)
 install(DIRECTORY DSView/demo DESTINATION share/DSView)
 install(FILES DSView/icons/logo.svg DESTINATION share/DSView RENAME logo.svg)
@@ -671,15 +719,8 @@ install(FILES DSView/icons/logo.svg DESTINATION share/icons/hicolor/scalable/app
 install(FILES DSView/icons/logo.svg DESTINATION share/pixmaps RENAME dsview.svg)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")	
-	install(FILES DSView/DSView.desktop DESTINATION /usr/share/applications RENAME dsview.desktop)
-	
-	if(IS_DIRECTORY /usr/lib/udev/rules.d)
-		install(FILES DSView/DreamSourceLab.rules DESTINATION /usr/lib/udev/rules.d RENAME 60-dreamsourcelab.rules)
-	elseif(IS_DIRECTORY /lib/udev/rules.d)
-		install(FILES DSView/DreamSourceLab.rules DESTINATION /lib/udev/rules.d RENAME 60-dreamsourcelab.rules)
-	elseif(IS_DIRECTORY /etc/udev/rules.d)
-		install(FILES DSView/DreamSourceLab.rules DESTINATION /etc/udev/rules.d RENAME 60-dreamsourcelab.rules)
-	endif()
+	install(FILES DSView/DSView.desktop DESTINATION share/applications RENAME dsview.desktop)
+	install(FILES DSView/DreamSourceLab.rules DESTINATION lib/udev/rules.d RENAME 60-dreamsourcelab.rules)
 
 endif()
 
@@ -695,15 +736,38 @@ install(DIRECTORY lang DESTINATION share/DSView)
 #= Packaging (handled by CPack)
 #-------------------------------------------------------------------------------
 
+set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
+set(CPACK_PACKAGE_VENDOR "DreamSourceLab")
+set(CPACK_PACKAGE_CONTACT "DSView Packaging <noreply@github.com>")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/modelclixxo/DSView")
+set(DSVIEW_PACKAGE_VERSION_OVERRIDE "" CACHE STRING "Override package version used for generated release packages")
+set(DSVIEW_EFFECTIVE_PACKAGE_VERSION ${DS_VERSION_STRING})
+if(DSVIEW_PACKAGE_VERSION_OVERRIDE)
+	set(DSVIEW_EFFECTIVE_PACKAGE_VERSION ${DSVIEW_PACKAGE_VERSION_OVERRIDE})
+endif()
 set(CPACK_PACKAGE_VERSION_MAJOR ${DS_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${DS_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${DS_VERSION_MICRO})
+set(CPACK_PACKAGE_VERSION ${DSVIEW_EFFECTIVE_PACKAGE_VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_CURRENT_SOURCE_DIR}/DSView/README)
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/DSView/COPYING)
 set(CPACK_SOURCE_IGNORE_FILES ${CMAKE_CURRENT_BINARY_DIR} ".gitignore" ".git")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME
 	"${CMAKE_PROJECT_NAME}-${DS_VERSION_MAJOR}.${DS_VERSION_MINOR}.${DS_VERSION_MICRO}")
 set(CPACK_SOURCE_GENERATOR "TGZ")
+
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+	set(CPACK_GENERATOR "DEB;TGZ")
+	set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+	set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+	set(CPACK_DEBIAN_PACKAGE_MAINTAINER "DSView Packaging")
+	set(CPACK_DEBIAN_PACKAGE_SECTION "electronics")
+	set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+	set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+	set(CPACK_DEBIAN_PACKAGE_VERSION ${DSVIEW_EFFECTIVE_PACKAGE_VERSION})
+	set(CPACK_DEBIAN_PACKAGE_DESCRIPTION
+		"DSView is a GUI application for DreamSourceLab USB instruments including logic analyzers and oscilloscopes.")
+endif()
 
 include(CPack)
 
@@ -716,4 +780,3 @@ if(ENABLE_TESTS)
 	enable_testing()
 	add_test(test ${CMAKE_CURRENT_BINARY_DIR}/DSView/test/DSView-test)
 endif(ENABLE_TESTS)
-

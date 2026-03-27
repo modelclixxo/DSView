@@ -110,10 +110,14 @@ MainFrame::MainFrame()
   
    bool isWin32 = false;
 
-#ifdef _WIN32
+#if defined(_WIN32) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     setWindowFlags(Qt::FramelessWindowHint);
     _is_win32_parent_window = true;
     _taskBtn = NULL;
+    isWin32 = true;
+#elif defined(_WIN32)
+    setWindowFlags(Qt::FramelessWindowHint);
+    _is_win32_parent_window = true;
     isWin32 = true;
 #else
     const bool wayland = ui::is_wayland_platform();
@@ -212,7 +216,7 @@ MainFrame::MainFrame()
         _layout->addLayout(vbox, 0, 0);
     }
 
-#ifdef _WIN32
+#if defined(_WIN32) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     _taskBtn = new QWinTaskbarButton(this);
 	connect(_mainWindow, SIGNAL(prgRate(int)), this, SLOT(setTaskbarProgress(int)));
 #endif
@@ -1092,7 +1096,7 @@ void MainFrame::ReadSettings()
     _initWndInfo.k = k;
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void MainFrame::showEvent(QShowEvent *event)
 {
     // Taskbar Progress Effert for Win7 and Above
@@ -1106,7 +1110,7 @@ void MainFrame::showEvent(QShowEvent *event)
 
 void MainFrame::setTaskbarProgress(int progress)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (progress > 0) {
         _taskPrg->setVisible(true);
         _taskPrg->setValue(progress);

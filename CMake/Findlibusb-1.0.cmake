@@ -49,20 +49,27 @@ if (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
 else (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
   find_path(LIBUSB_1_INCLUDE_DIR
     NAMES
-	    libusb.h
+      libusb-1.0/libusb.h
+      libusb.h
     PATHS
+      /opt/homebrew/include
+      /opt/homebrew/opt/libusb/include
+      /mingw64/include
+      /clang64/include
       /usr/local/include
       /opt/local/include
       /usr/include
 
-    PATH_SUFFIXES
-      libusb-1.0
   )
 
   find_library(LIBUSB_1_LIBRARY
     NAMES
-      usb-1.0 usb
+      usb-1.0 libusb-1.0 usb
     PATHS
+      /opt/homebrew/lib
+      /opt/homebrew/opt/libusb/lib
+      /mingw64/lib
+      /clang64/lib
       /usr/local/lib64
       /opt/local/lib64
       /usr/lib64

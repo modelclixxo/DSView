@@ -21,8 +21,6 @@
 
 #include "path.h"
 #ifdef _WIN32
-#include <QTextCodec>
-#include "../log.h"
 #include <string.h>
 #endif
 
@@ -49,15 +47,8 @@ namespace path{
         std::string str;
          
 #ifdef _WIN32
-        QTextCodec *codec = QTextCodec::codecForName("System");
-        if (codec != NULL){
-            QByteArray str_tmp = codec->fromUnicode(path);
-            str = str_tmp.data();
-        } 
-        else{
-            dsv_err("Error: can't get \"System\" page code");
-            str = path.toUtf8().data();
-        }       
+        QByteArray str_tmp = path.toLocal8Bit();
+        str = str_tmp.constData();
 #else
         str = path.toUtf8().data();        
 #endif
