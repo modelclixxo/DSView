@@ -383,10 +383,11 @@ jobs:
           set -euo pipefail
           tag="${GITHUB_REF_NAME}"
           title="DSView ${tag#v}"
-          if ! gh release view "${tag}" >/dev/null 2>&1; then
-            gh release create "${tag}" --title "${title}" --generate-notes
+          repo="${GITHUB_REPOSITORY}"
+          if ! gh release view "${tag}" --repo "${repo}" >/dev/null 2>&1; then
+            gh release create "${tag}" --repo "${repo}" --title "${title}" --generate-notes
           else
-            gh release edit "${tag}" --title "${title}"
+            gh release edit "${tag}" --repo "${repo}" --title "${title}"
           fi
           mapfile -d '' files < <(find release-artifacts -type f -print0)
-          gh release upload "${tag}" "${files[@]}" --clobber
+          gh release upload "${tag}" --repo "${repo}" "${files[@]}" --clobber
