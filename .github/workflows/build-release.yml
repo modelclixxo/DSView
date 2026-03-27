@@ -113,7 +113,6 @@ jobs:
           install: >-
             base-devel
             git
-            zip
             mingw-w64-x86_64-toolchain
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-ninja
@@ -126,6 +125,22 @@ jobs:
             mingw-w64-x86_64-boost
             mingw-w64-x86_64-qt6-base
             mingw-w64-x86_64-qt6-tools
+
+      - name: Set up .NET SDK
+        if: runner.os == 'Windows'
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install WiX Toolset
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $wixRoot = Join-Path $env:RUNNER_TEMP "wix"
+          dotnet tool install --tool-path $wixRoot wix --version 4.0.4
+          & (Join-Path $wixRoot "wix.exe") extension add --global WixToolset.UI.wixext/4.0.4
+          "WIX=$wixRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $wixRoot | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
 
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
@@ -287,24 +302,10 @@ jobs:
         run: |
           set -euo pipefail
           version="${{ steps.meta.outputs.artifact_version }}"
-          dist_dir="$(pwd)/dist"
-          stage="${RUNNER_TEMP}/stage"
-          package_root="${RUNNER_TEMP}/DSView-${version}-${{ matrix.archive_name }}"
-          mkdir -p "${stage}" "${package_root}" dist
-          cmake --install build --prefix "${stage}"
-          cp -R "${stage}/bin/." "${package_root}/"
-          cp -R "${stage}/share/DSView/." "${package_root}/"
-          mkdir -p "${package_root}/decoders"
-          cp -R "${stage}/share/libsigrokdecode4DSL/decoders/." "${package_root}/decoders/"
-
-          deployqt="$(command -v windeployqt6.exe || command -v windeployqt.exe || command -v windeployqt6 || command -v windeployqt)"
-          "${deployqt}" --release --compiler-runtime "${package_root}/DSView.exe"
-
-          for dep in $(ldd "${package_root}/DSView.exe" | awk '/=> \\/mingw64\\// {print $3}'); do
-            cp -n "${dep}" "${package_root}/"
-          done
-
-          (cd "${RUNNER_TEMP}" && zip -r "${dist_dir}/DSView-${version}-${{ matrix.archive_name }}.zip" "$(basename "${package_root}")" >/dev/null)
+          mkdir -p dist/cpack
+          cpack --config build/CPackConfig.cmake -G WIX -B dist/cpack
+          msi_file="$(find dist/cpack -maxdepth 1 -type f -name '*.msi' | head -n 1)"
+          mv "${msi_file}" "dist/DSView-${version}-${{ matrix.archive_name }}.msi"
 
       - name: Package macOS
         if: runner.os == 'macOS'
@@ -323,7 +324,6 @@ jobs:
           cp -R "${stage}/share/libsigrokdecode4DSL" "${app_path}/Contents/share/libsigrokdecode4DSL"
 
           macdeployqt "${app_path}" -dmg
-          ditto -c -k --sequesterRsrc --keepParent "${app_path}" "dist/DSView-${version}-${{ matrix.archive_name }}.zip"
           mv "${stage}/DSView.dmg" "dist/DSView-${version}-${{ matrix.archive_name }}.dmg"
 
       - name: Upload build artifact

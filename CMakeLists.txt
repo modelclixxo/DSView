@@ -231,6 +231,19 @@ if(NOT Qt6Core_FOUND AND NOT Qt5Core_FOUND)
 	message(FATAL_ERROR  "Can't find Qt5 or Qt6!")
 endif()
 
+if(WIN32)
+	find_program(WINDEPLOYQT_EXECUTABLE NAMES windeployqt6 windeployqt)
+	if(NOT WINDEPLOYQT_EXECUTABLE)
+		message(FATAL_ERROR "Could not find windeployqt for Windows packaging.")
+	endif()
+	get_filename_component(DSVIEW_QT_BIN_DIR "${WINDEPLOYQT_EXECUTABLE}" DIRECTORY)
+	configure_file(
+		${CMAKE_CURRENT_SOURCE_DIR}/CMake/DeployWindows.cmake.in
+		${CMAKE_CURRENT_BINARY_DIR}/DeployWindows.cmake
+		@ONLY
+	)
+endif()
+
 #===============================================================================
 #= boost
 #-------------------------------------------------------------------------------
@@ -732,6 +745,10 @@ install(FILES ug31.pdf DESTINATION share/DSView RENAME ug31.pdf)
 install(DIRECTORY libsigrokdecode4DSL/decoders DESTINATION share/libsigrokdecode4DSL)
 install(DIRECTORY lang DESTINATION share/DSView)
 
+if(WIN32)
+	install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/DeployWindows.cmake)
+endif()
+
 #===============================================================================
 #= Packaging (handled by CPack)
 #-------------------------------------------------------------------------------
@@ -767,6 +784,16 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 	set(CPACK_DEBIAN_PACKAGE_VERSION ${DSVIEW_EFFECTIVE_PACKAGE_VERSION})
 	set(CPACK_DEBIAN_PACKAGE_DESCRIPTION
 		"DSView is a GUI application for DreamSourceLab USB instruments including logic analyzers and oscilloscopes.")
+elseif(WIN32)
+	set(CPACK_GENERATOR "WIX")
+	set(CPACK_PACKAGE_INSTALL_DIRECTORY "DSView")
+	set(CPACK_PACKAGE_EXECUTABLES "DSView" "DSView")
+	set(CPACK_WIX_VERSION 4)
+	set(CPACK_WIX_ARCHITECTURE "x64")
+	set(CPACK_WIX_INSTALL_SCOPE "perMachine")
+	set(CPACK_WIX_UI_REF "WixUI_InstallDir")
+	set(CPACK_WIX_UPGRADE_GUID "B6D8AF1E-4D6D-4F2A-AE70-8A0A0A3C0C51")
+	set(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/logo-win.ico")
 endif()
 
 include(CPack)

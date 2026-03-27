@@ -1,0 +1,43 @@
+set(_dsview_installed_exe "${CMAKE_INSTALL_PREFIX}/bin/DSView.exe")
+
+if(NOT EXISTS "${_dsview_installed_exe}")
+    message(FATAL_ERROR "Installed executable not found: ${_dsview_installed_exe}")
+endif()
+
+execute_process(
+    COMMAND "@WINDEPLOYQT_EXECUTABLE@" --release --no-translations --compiler-runtime "${_dsview_installed_exe}"
+    RESULT_VARIABLE _dsview_windeployqt_result
+    OUTPUT_VARIABLE _dsview_windeployqt_stdout
+    ERROR_VARIABLE _dsview_windeployqt_stderr
+)
+
+if(NOT _dsview_windeployqt_result EQUAL 0)
+    message(FATAL_ERROR
+        "windeployqt failed with exit code ${_dsview_windeployqt_result}\n"
+        "${_dsview_windeployqt_stdout}\n${_dsview_windeployqt_stderr}")
+endif()
+
+file(GET_RUNTIME_DEPENDENCIES
+    RESOLVED_DEPENDENCIES_VAR _dsview_resolved_deps
+    UNRESOLVED_DEPENDENCIES_VAR _dsview_unresolved_deps
+    EXECUTABLES "${_dsview_installed_exe}"
+    DIRECTORIES "@DSVIEW_QT_BIN_DIR@"
+    PRE_EXCLUDE_REGEXES
+        "api-ms-.*"
+        "ext-ms-.*"
+    POST_EXCLUDE_REGEXES
+        ".*/Windows/System32/.*"
+        ".*/WINDOWS/system32/.*"
+)
+
+foreach(_dsview_dep IN LISTS _dsview_resolved_deps)
+    get_filename_component(_dsview_dep_name "${_dsview_dep}" NAME)
+    if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/bin/${_dsview_dep_name}")
+        file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE FILE FILES "${_dsview_dep}")
+    endif()
+endforeach()
+
+if(_dsview_unresolved_deps)
+    list(JOIN _dsview_unresolved_deps ", " _dsview_unresolved_text)
+    message(WARNING "Unresolved runtime dependencies: ${_dsview_unresolved_text}")
+endif()
