@@ -132,7 +132,7 @@ jobs:
         shell: bash
         run: |
           brew update
-          brew install cmake ninja pkg-config qt@6 glib libusb fftw boost python@3.12
+          brew install cmake ninja pkg-config qt@6 glib libusb fftw boost python
 
       - name: Configure Linux
         if: runner.os == 'Linux'
@@ -189,11 +189,11 @@ jobs:
           libusb_prefix="$(brew --prefix libusb)"
           fftw_prefix="$(brew --prefix fftw)"
           boost_prefix="$(brew --prefix boost)"
-          python_prefix="$(brew --prefix python@3.12)"
           export PATH="${qt_prefix}/bin:${brew_prefix}/bin:$PATH"
+          pkg_config_bin="$(command -v pkg-config || command -v pkgconf)"
+          python_bin="$(command -v python3 || command -v python)"
+          python_prefix="$(cd "$(dirname "${python_bin}")/.." && pwd)"
           export PKG_CONFIG_PATH="${glib_prefix}/lib/pkgconfig:${libusb_prefix}/lib/pkgconfig:${fftw_prefix}/lib/pkgconfig:${boost_prefix}/lib/pkgconfig:${python_prefix}/lib/pkgconfig:${brew_prefix}/lib/pkgconfig:${qt_prefix}/lib/pkgconfig"
-          pkg_config_bin="$(command -v pkg-config)"
-          python_bin="${python_prefix}/bin/python3"
           python_include="$("${python_bin}" -c 'import sysconfig; print(sysconfig.get_path("include"))')"
           python_library="$("${python_bin}" -c 'import pathlib, sysconfig; libdir = sysconfig.get_config_var("LIBDIR") or sysconfig.get_config_var("LIBPL") or ""; library = sysconfig.get_config_var("LDLIBRARY") or sysconfig.get_config_var("LIBRARY") or ""; print(pathlib.Path(libdir, library) if libdir and library else "")')"
           cmake -S . -B build -G Ninja \
@@ -214,13 +214,14 @@ jobs:
             exit ${status}
           fi
 
-      - name: Upload configure diagnostics
+      - name: Upload failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v5
         with:
-          name: configure-diagnostics-${{ matrix.artifact_name }}-${{ steps.meta.outputs.artifact_version }}
+          name: failure-diagnostics-${{ matrix.artifact_name }}-${{ steps.meta.outputs.artifact_version }}
           path: |
             configure-*.log
+            build-*.log
             build/CMakeFiles/CMakeError.log
             build/CMakeFiles/CMakeOutput.log
           if-no-files-found: ignore
@@ -234,12 +235,22 @@ jobs:
       - name: Build Windows
         if: runner.os == 'Windows'
         shell: msys2 {0}
-        run: cmake --build build --parallel
+        run: |
+          cmake --build build --parallel 2>&1 | tee build-windows.log
+          status=${PIPESTATUS[0]}
+          if [[ ${status} -ne 0 ]]; then
+            exit ${status}
+          fi
 
       - name: Build macOS
         if: runner.os == 'macOS'
         shell: bash
-        run: cmake --build build --parallel
+        run: |
+          cmake --build build --parallel 2>&1 | tee build-macos.log
+          status=${PIPESTATUS[0]}
+          if [[ ${status} -ne 0 ]]; then
+            exit ${status}
+          fi
 
       - name: Smoke check Linux
         if: runner.os == 'Linux'
