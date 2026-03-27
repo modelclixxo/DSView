@@ -326,15 +326,39 @@ jobs:
           macdeployqt "${app_path}" -dmg
           mv "${stage}/DSView.dmg" "dist/DSView-${version}-${{ matrix.archive_name }}.dmg"
 
-      - name: Upload build artifact
+      - name: Upload Linux tarball artifact
+        if: runner.os == 'Linux'
         uses: actions/upload-artifact@v5
         with:
-          name: ${{ matrix.artifact_name }}-${{ steps.meta.outputs.artifact_version }}
-          path: |
-            dist/*.deb
-            dist/*.tar.gz
-            dist/*.msi
-            dist/*.dmg
+          name: DSView-${{ steps.meta.outputs.artifact_version }}-linux-x86_64.tar.gz
+          path: dist/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Linux DEB artifact
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v5
+        with:
+          name: DSView-${{ steps.meta.outputs.artifact_version }}-linux-amd64.deb
+          path: dist/*.deb
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Windows MSI artifact
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v5
+        with:
+          name: DSView-${{ steps.meta.outputs.artifact_version }}-windows-x86_64.msi
+          path: dist/*.msi
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload macOS DMG artifact
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v5
+        with:
+          name: DSView-${{ steps.meta.outputs.artifact_version }}-macos.dmg
+          path: dist/*.dmg
           if-no-files-found: error
           retention-days: 14
 
