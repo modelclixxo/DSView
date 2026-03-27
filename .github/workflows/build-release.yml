@@ -330,7 +330,11 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.artifact_name }}-${{ steps.meta.outputs.artifact_version }}
-          path: dist/*
+          path: |
+            dist/*.deb
+            dist/*.tar.gz
+            dist/*.msi
+            dist/*.dmg
           if-no-files-found: error
           retention-days: 14
 
