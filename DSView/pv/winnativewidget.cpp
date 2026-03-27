@@ -23,7 +23,6 @@
 
 #include "winnativewidget.h"
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QScreen>
 #include <QGuiApplication>
 #include <QWindow>
