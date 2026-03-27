@@ -214,19 +214,6 @@ jobs:
             exit ${status}
           fi
 
-      - name: Upload failure diagnostics
-        if: failure()
-        uses: actions/upload-artifact@v5
-        with:
-          name: failure-diagnostics-${{ matrix.artifact_name }}-${{ steps.meta.outputs.artifact_version }}
-          path: |
-            configure-*.log
-            build-*.log
-            build/CMakeFiles/CMakeError.log
-            build/CMakeFiles/CMakeOutput.log
-          if-no-files-found: ignore
-          retention-days: 14
-
       - name: Build Linux
         if: runner.os == 'Linux'
         shell: bash
@@ -251,6 +238,19 @@ jobs:
           if [[ ${status} -ne 0 ]]; then
             exit ${status}
           fi
+
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: failure-diagnostics-${{ matrix.artifact_name }}-${{ steps.meta.outputs.artifact_version }}
+          path: |
+            configure-*.log
+            build-*.log
+            build/CMakeFiles/CMakeError.log
+            build/CMakeFiles/CMakeOutput.log
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Smoke check Linux
         if: runner.os == 'Linux'
